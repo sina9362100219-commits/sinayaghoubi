@@ -1,14 +1,17 @@
 ---
 const navigation = [
+  { label: 'خانه', href: '/' },
   { label: 'روانکاوی', href: '/psychoanalysis/' },
   { label: 'فلسفه', href: '/philosophy/' },
 ];
+
+const currentPath = Astro.url.pathname;
 ---
 
-<header class="site-header">
+<header id="top" class="site-header">
   <div class="container header-inner">
-    <a class="brand" href="/" aria-label="صفحه اصلی">
-      <span class="brand-mark">س</span>
+    <a class="brand" href="/" aria-label="روانکاوی با سینا، صفحه اصلی">
+      <span class="brand-mark" aria-hidden="true">س</span>
       <span class="brand-copy">
         <strong>روانکاوی با سینا</strong>
         <small>روانکاوی و فلسفه</small>
@@ -17,17 +20,30 @@ const navigation = [
 
     <nav class="desktop-nav" aria-label="منوی اصلی">
       {navigation.map((item) => (
-        <a href={item.href}>{item.label}</a>
+        <a
+          href={item.href}
+          aria-current={currentPath === item.href ? 'page' : undefined}
+        >
+          {item.label}
+        </a>
       ))}
     </nav>
 
     <details class="mobile-menu">
-      <summary aria-label="باز کردن منو">
-        <span></span><span></span>
+      <summary aria-label="باز و بسته کردن منوی سایت">
+        <span class="menu-lines" aria-hidden="true">
+          <span></span>
+          <span></span>
+        </span>
       </summary>
       <nav aria-label="منوی موبایل">
         {navigation.map((item) => (
-          <a href={item.href}>{item.label}</a>
+          <a
+            href={item.href}
+            aria-current={currentPath === item.href ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
         ))}
       </nav>
     </details>
@@ -39,104 +55,219 @@ const navigation = [
     position: sticky;
     top: 0;
     z-index: 20;
-    background: rgba(255,255,255,.91);
+    border-bottom: 1px solid rgba(37, 43, 50, .09);
+    background: rgba(255, 255, 255, .92);
     backdrop-filter: blur(18px);
-    border-bottom: 1px solid var(--sina-border);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .site-header::after {
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 127, 128, .35), transparent);
+    content: '';
+    pointer-events: none;
   }
 
   .header-inner {
-    min-height: 86px;
+    min-height: 82px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 28px;
+    gap: 32px;
   }
 
   .brand {
-    display: flex;
+    display: inline-flex;
+    flex-shrink: 0;
     align-items: center;
     gap: 12px;
   }
 
   .brand-mark {
+    position: relative;
     display: grid;
     place-items: center;
-    width: 43px;
-    height: 43px;
-    border-radius: 14px 14px 14px 4px;
-    background: var(--sina-tint-teal);
+    width: 46px;
+    height: 46px;
+    border: 1px solid rgba(0, 127, 128, .16);
+    border-radius: 15px 15px 15px 5px;
+    background: linear-gradient(145deg, #f1faf7, #e1f1ec);
+    box-shadow: 0 5px 16px rgba(0, 127, 128, .08);
     color: var(--sina-teal-deep);
     font-family: var(--font-literary);
-    font-size: 29px;
+    font-size: 30px;
+    line-height: 1;
+  }
+
+  .brand-mark::after {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--sina-ruby);
+    content: '';
   }
 
   .brand-copy {
     display: grid;
-    line-height: 1.55;
+    gap: 1px;
+    line-height: 1.65;
   }
 
-  .brand-copy strong { font-size: 15px; }
-  .brand-copy small { color: var(--sina-muted); font-size: 10px; }
+  .brand-copy strong {
+    color: var(--sina-charcoal);
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  .brand-copy small {
+    color: var(--sina-muted);
+    font-size: 10px;
+    letter-spacing: .02em;
+  }
 
   .desktop-nav {
     display: flex;
-    gap: 35px;
+    align-items: center;
+    gap: 7px;
+    padding: 5px;
+    border: 1px solid rgba(37, 43, 50, .07);
+    border-radius: 999px;
+    background: rgba(248, 250, 249, .85);
   }
 
   .desktop-nav a {
-    color: #59616A;
-    font-size: 13px;
+    position: relative;
+    padding: 8px 17px;
+    border-radius: 999px;
+    color: #59616a;
+    font-size: 12px;
+    font-weight: 600;
+    transition: color .2s ease, background .2s ease, box-shadow .2s ease;
   }
 
-  .desktop-nav a:hover { color: var(--sina-teal-deep); }
+  .desktop-nav a:hover {
+    color: var(--sina-teal-deep);
+    background: white;
+  }
 
-  .mobile-menu { display: none; }
+  .desktop-nav a[aria-current="page"] {
+    background: white;
+    box-shadow: 0 2px 9px rgba(37, 43, 50, .07);
+    color: var(--sina-teal-deep);
+  }
 
-  @media(max-width: 900px) {
-    .desktop-nav { display: none; }
-    .header-inner { min-height: 72px; }
-    .mobile-menu { display: block; position: relative; }
+  .mobile-menu {
+    display: none;
+  }
 
-    .mobile-menu summary {
-      list-style: none;
-      cursor: pointer;
-      width: 42px;
-      height: 42px;
-      display: grid;
-      align-content: center;
-      justify-content: center;
-      gap: 6px;
-      border: 1px solid var(--sina-border);
-      border-radius: 12px;
+  .brand:focus-visible,
+  .desktop-nav a:focus-visible,
+  .mobile-menu a:focus-visible,
+  .mobile-menu summary:focus-visible {
+    outline: 3px solid rgba(0, 159, 154, .35);
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 900px) {
+    .header-inner {
+      min-height: 72px;
     }
 
-    .mobile-menu summary::-webkit-details-marker { display: none; }
-    .mobile-menu summary span {
-      width: 18px;
+    .desktop-nav {
+      display: none;
+    }
+
+    .mobile-menu {
+      position: relative;
+      display: block;
+    }
+
+    .mobile-menu summary {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--sina-border);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .8);
+      cursor: pointer;
+      list-style: none;
+      transition: border-color .2s ease, background .2s ease;
+    }
+
+    .mobile-menu summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .mobile-menu summary:hover,
+    .mobile-menu[open] summary {
+      border-color: rgba(0, 127, 128, .35);
+      background: #f3faf7;
+    }
+
+    .menu-lines {
+      display: grid;
+      gap: 6px;
+    }
+
+    .menu-lines span {
+      width: 19px;
       height: 2px;
+      border-radius: 2px;
       background: var(--sina-charcoal);
+      transition: transform .2s ease;
+    }
+
+    .mobile-menu[open] .menu-lines span:first-child {
+      transform: translateY(4px) rotate(45deg);
+    }
+
+    .mobile-menu[open] .menu-lines span:last-child {
+      transform: translateY(-4px) rotate(-45deg);
     }
 
     .mobile-menu nav {
       position: absolute;
-      top: 54px;
-      left: 0;
-      width: 190px;
-      padding: 12px;
+      top: calc(100% + 12px);
+      right: 0;
+      width: min(250px, calc(100vw - 32px));
+      padding: 9px;
       display: grid;
-      gap: 5px;
-      background: white;
+      gap: 4px;
       border: 1px solid var(--sina-border);
-      border-radius: 16px;
-      box-shadow: var(--shadow-soft);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .98);
+      box-shadow: 0 18px 48px rgba(37, 43, 50, .14);
     }
 
     .mobile-menu nav a {
-      padding: 10px 12px;
-      border-radius: 8px;
+      padding: 11px 13px;
+      border-radius: 11px;
+      color: #59616a;
       font-size: 13px;
+      font-weight: 600;
+      transition: color .2s ease, background .2s ease;
     }
 
-    .mobile-menu nav a:hover { background: var(--sina-tint-teal-soft); }
+    .mobile-menu nav a:hover,
+    .mobile-menu nav a[aria-current="page"] {
+      background: var(--sina-tint-teal-soft);
+      color: var(--sina-teal-deep);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-header *,
+    .site-header *::before,
+    .site-header *::after {
+      transition: none !important;
+    }
   }
 </style>
