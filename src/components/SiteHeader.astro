@@ -1,0 +1,142 @@
+---
+const navigation = [
+  { label: 'روانکاوی', href: '/psychoanalysis/' },
+  { label: 'فلسفه', href: '/philosophy/' },
+];
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/" aria-label="صفحه اصلی">
+      <span class="brand-mark">س</span>
+      <span class="brand-copy">
+        <strong>روانکاوی با سینا</strong>
+        <small>روانکاوی و فلسفه</small>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="منوی اصلی">
+      {navigation.map((item) => (
+        <a href={item.href}>{item.label}</a>
+      ))}
+    </nav>
+
+    <details class="mobile-menu">
+      <summary aria-label="باز کردن منو">
+        <span></span><span></span>
+      </summary>
+      <nav aria-label="منوی موبایل">
+        {navigation.map((item) => (
+          <a href={item.href}>{item.label}</a>
+        ))}
+      </nav>
+    </details>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(255,255,255,.91);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--sina-border);
+  }
+
+  .header-inner {
+    min-height: 86px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-mark {
+    display: grid;
+    place-items: center;
+    width: 43px;
+    height: 43px;
+    border-radius: 14px 14px 14px 4px;
+    background: var(--sina-tint-teal);
+    color: var(--sina-teal-deep);
+    font-family: var(--font-literary);
+    font-size: 29px;
+  }
+
+  .brand-copy {
+    display: grid;
+    line-height: 1.55;
+  }
+
+  .brand-copy strong { font-size: 15px; }
+  .brand-copy small { color: var(--sina-muted); font-size: 10px; }
+
+  .desktop-nav {
+    display: flex;
+    gap: 35px;
+  }
+
+  .desktop-nav a {
+    color: #59616A;
+    font-size: 13px;
+  }
+
+  .desktop-nav a:hover { color: var(--sina-teal-deep); }
+
+  .mobile-menu { display: none; }
+
+  @media(max-width: 900px) {
+    .desktop-nav { display: none; }
+    .header-inner { min-height: 72px; }
+    .mobile-menu { display: block; position: relative; }
+
+    .mobile-menu summary {
+      list-style: none;
+      cursor: pointer;
+      width: 42px;
+      height: 42px;
+      display: grid;
+      align-content: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid var(--sina-border);
+      border-radius: 12px;
+    }
+
+    .mobile-menu summary::-webkit-details-marker { display: none; }
+    .mobile-menu summary span {
+      width: 18px;
+      height: 2px;
+      background: var(--sina-charcoal);
+    }
+
+    .mobile-menu nav {
+      position: absolute;
+      top: 54px;
+      left: 0;
+      width: 190px;
+      padding: 12px;
+      display: grid;
+      gap: 5px;
+      background: white;
+      border: 1px solid var(--sina-border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .mobile-menu nav a {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .mobile-menu nav a:hover { background: var(--sina-tint-teal-soft); }
+  }
+</style>

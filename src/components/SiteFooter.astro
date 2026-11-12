@@ -1,0 +1,67 @@
+<footer class="site-footer">
+  <div class="container footer-main">
+    <div class="footer-brand">
+      <strong>روانکاوی با سینا</strong>
+      <p>فضایی برای اندیشیدن درباره روانکاوی، فلسفه و تجربه انسانی.</p>
+    </div>
+    <nav class="footer-links" aria-label="پیوندهای اصلی">
+      <a href="/psychoanalysis/">روانکاوی</a>
+      <a href="/philosophy/">فلسفه</a>
+    </nav>
+  </div>
+  <div class="container footer-bottom">
+    <span>© {new Date().getFullYear()} روانکاوی با سینا</span>
+    <span>روانکاوی و فلسفه</span>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: #F7F9F8;
+    border-top: 1px solid var(--sina-border);
+    padding-top: 45px;
+  }
+
+  .footer-main {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    padding-bottom: 35px;
+  }
+
+  .footer-brand { max-width: 390px; }
+  .footer-brand strong { font-size: 19px; }
+  .footer-brand p { color: var(--sina-muted); font-size: 13px; }
+
+  .footer-links {
+    display: flex;
+    gap: 28px;
+  }
+
+  .footer-links a {
+    font-size: 13px;
+    color: var(--sina-muted);
+  }
+
+  .footer-links a:hover { color: var(--sina-teal-deep); }
+
+  .footer-bottom {
+    min-height: 62px;
+    border-top: 1px solid var(--sina-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    color: var(--sina-muted);
+    font-size: 11px;
+  }
+
+  @media(max-width: 650px) {
+    .footer-main, .footer-bottom {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .footer-main { gap: 20px; }
+    .footer-bottom { justify-content: center; padding-block: 14px; }
+  }
+</style>

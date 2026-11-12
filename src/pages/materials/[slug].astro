@@ -1,0 +1,761 @@
+﻿---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const entries = await getCollection(
+    'content',
+    ({ data }) => !data.draft
+  );
+
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const sectionTitle =
+  entry.data.section === 'psychoanalysis' ? 'روانکاوی' : 'فلسفه';
+
+const sectionUrl =
+  entry.data.section === 'psychoanalysis'
+    ? '/psychoanalysis/'
+    : '/philosophy/';
+
+const wordCount =
+  (entry.body ?? '').match(/[\p{L}\p{N}]+/gu)?.length ?? 0;
+
+const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
+---
+
+<Layout
+  title={`${entry.data.title} | روانکاوی با سینا`}
+  description={entry.data.description}
+>
+  <article class="material-page">
+    <div class="reading-progress" data-reading-progress></div>
+
+    <div class="material-shell">
+      <nav class="material-breadcrumb" aria-label="مسیر صفحه">
+        <a href="/">خانه</a>
+        <span>/</span>
+        <a href={sectionUrl}>{sectionTitle}</a>
+        <span>/</span>
+        <span class="breadcrumb-current">{entry.data.title}</span>
+      </nav>
+
+      <header class="material-hero">
+        <div class="hero-copy">
+          <div class="material-meta">
+            <span class="material-section">{sectionTitle}</span>
+            {entry.data.publishedAt && (
+              <>
+                <span class="meta-dot"></span>
+                <time>{entry.data.publishedAt}</time>
+              </>
+            )}
+            <span class="meta-dot"></span>
+            <span>{readingMinutes} دقیقه مطالعه</span>
+          </div>
+
+          <h1>{entry.data.title}</h1>
+          <p class="material-lead">{entry.data.description}</p>
+        </div>
+
+        {entry.data.cover && (
+          <figure class="material-cover">
+            <img
+              src={entry.data.cover}
+              alt={entry.data.coverAlt ?? entry.data.title}
+              fetchpriority="high"
+            />
+          </figure>
+        )}
+
+        <div class="hero-bottom">
+          <span>روانکاوی با سینا</span>
+          <span>مطالعه و تأمل</span>
+        </div>
+      </header>
+
+      <div class="reading-layout">
+        <main class="reading-main">
+          <div class="material-content" data-reading-content>
+            <Content />
+          </div>
+
+          {entry.data.tags.length > 0 && (
+            <div class="material-tags">
+              <span class="tags-label">موضوعات مرتبط</span>
+              <div class="tags-list">
+                {entry.data.tags.map((tag) => <span>{tag}</span>)}
+              </div>
+            </div>
+          )}
+
+          <div class="material-end">
+            <span class="end-mark"></span>
+            <p>پایان مطلب</p>
+            <a href={sectionUrl}>بازگشت به بخش {sectionTitle}</a>
+          </div>
+        </main>
+
+        <aside class="material-sidebar" data-toc hidden>
+          <div class="toc-card">
+            <span class="toc-kicker">راهنمای مطالعه</span>
+            <h2>در این مطلب</h2>
+            <nav aria-label="فهرست مطالب">
+              <ol data-toc-list></ol>
+            </nav>
+            <div class="toc-progress">
+              <span>پیشرفت مطالعه</span>
+              <span data-progress-label>۰٪</span>
+              <div class="toc-progress-track">
+                <span data-progress-bar></span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </article>
+</Layout>
+
+<script>
+  const article = document.querySelector('[data-reading-content]');
+  const toc = document.querySelector('[data-toc]');
+  const tocList = document.querySelector('[data-toc-list]');
+  const progressLine = document.querySelector('[data-reading-progress]');
+  const progressBar = document.querySelector('[data-progress-bar]');
+  const progressLabel = document.querySelector('[data-progress-label]');
+
+  if (article && toc && tocList) {
+    const headings = Array.from(
+      article.querySelectorAll('h2, h3')
+    );
+
+    if (headings.length > 0) {
+      headings.forEach((heading, index) => {
+        if (!heading.id) {
+          heading.id = `reading-section-${index + 1}`;
+        }
+
+        const item = document.createElement('li');
+        const link = document.createElement('a');
+
+        link.href = `#${heading.id}`;
+        link.textContent = heading.textContent?.trim() ?? '';
+        link.className = heading.tagName === 'H3' ? 'toc-subitem' : '';
+
+        item.appendChild(link);
+        tocList.appendChild(item);
+      });
+
+      toc.hidden = false;
+
+      const links = Array.from(tocList.querySelectorAll('a'));
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              links.forEach((link) => {
+                link.classList.toggle(
+                  'is-active',
+                  link.getAttribute('href') === `#${entry.target.id}`
+                );
+              });
+            }
+          });
+        },
+        { rootMargin: '-15% 0px -70% 0px' }
+      );
+
+      headings.forEach((heading) => observer.observe(heading));
+    }
+  }
+
+  function updateReadingProgress() {
+    if (!article) return;
+
+    const rect = article.getBoundingClientRect();
+    const total = article.scrollHeight - window.innerHeight;
+    const passed = Math.max(0, -rect.top);
+    const percent = total > 0
+      ? Math.min(100, Math.max(0, (passed / total) * 100))
+      : 100;
+
+    if (progressLine instanceof HTMLElement) {
+      progressLine.style.width = `${percent}%`;
+    }
+
+    if (progressBar instanceof HTMLElement) {
+      progressBar.style.width = `${percent}%`;
+    }
+
+    if (progressLabel) {
+      progressLabel.textContent = `${Math.round(percent)}٪`;
+    }
+  }
+
+  window.addEventListener('scroll', updateReadingProgress, {
+    passive: true,
+  });
+
+  window.addEventListener('resize', updateReadingProgress);
+  updateReadingProgress();
+</script>
+
+<style>
+  .material-page {
+    --reading-paper: #fbfaf7;
+    --reading-ink: #292d32;
+    --reading-muted: #747a80;
+    --reading-line: #e8e5df;
+    --reading-accent: var(--sina-teal-deep);
+    --reading-highlight: var(--sina-ruby);
+
+    background: var(--reading-paper);
+    color: var(--reading-ink);
+    min-height: 70vh;
+    padding-bottom: 100px;
+  }
+
+  .reading-progress {
+    position: fixed;
+    inset: 0 auto auto 0;
+    width: 0;
+    height: 3px;
+    background: var(--sina-ruby);
+    z-index: 100;
+    transition: width .08s linear;
+  }
+
+  .material-shell {
+    width: min(1240px, calc(100% - 64px));
+    margin-inline: auto;
+  }
+
+  .material-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding-top: 30px;
+    color: var(--reading-muted);
+    font-size: 12px;
+  }
+
+  .material-breadcrumb a {
+    transition: color .2s ease;
+  }
+
+  .material-breadcrumb a:hover {
+    color: var(--reading-accent);
+  }
+
+  .breadcrumb-current {
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .material-hero {
+    position: relative;
+    padding: 76px 0 25px;
+    border-bottom: 1px solid var(--reading-line);
+  }
+
+  .hero-copy {
+    max-width: 900px;
+  }
+
+  .material-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    color: var(--reading-muted);
+    font-size: 12px;
+  }
+
+  .material-section {
+    color: var(--reading-accent);
+    font-weight: 700;
+  }
+
+  .meta-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--reading-highlight);
+  }
+
+  .material-hero h1 {
+    max-width: 900px;
+    margin: 24px 0 18px;
+    font-size: clamp(34px, 5.2vw,  sixty);
+    font-size: clamp(34px, 5.2vw, 60px);
+    line-height: 1.55;
+    letter-spacing: -.045em;
+    font-weight: 800;
+  }
+
+  .material-lead {
+    max-width: 760px;
+    margin: 0;
+    color: var(--reading-muted);
+    font-size: clamp(16px, 1.7vw, 19px);
+    line-height: 2.25;
+  }
+
+  .material-cover {
+    width: 100%;
+    max-height: 560px;
+    margin: 48px 0 0;
+    overflow: hidden;
+    border-radius: 5px;
+    background: #efede8;
+  }
+
+  .material-cover img {
+    display: block;
+    width: 100%;
+    max-height: 560px;
+    object-fit: cover;
+  }
+
+  .hero-bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 42px;
+    color: #92918b;
+    font-size: 11px;
+    letter-spacing: .04em;
+  }
+
+  .reading-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 790px) 230px;
+    gap: 64px;
+    justify-content: space-between;
+    align-items: start;
+    padding-top: 55px;
+  }
+
+  .reading-main {
+    min-width: 0;
+  }
+
+  .material-content {
+    color: #35383b;
+    font-size: 17px;
+    line-height: 2.45;
+    overflow-wrap: break-word;
+  }
+
+  .material-content :global(> :first-child) {
+    margin-top: 0;
+  }
+
+  .material-content :global(p) {
+    margin: 0 0 27px;
+  }
+
+  .material-content :global(h2) {
+    position: relative;
+    margin: 76px 0 24px;
+    padding-right: 22px;
+    color: #252b32;
+    font-size: clamp(23px, 3vw, 30px);
+    line-height: 1.8;
+    font-weight: 700;
+    scroll-margin-top: 100px;
+  }
+
+  .material-content :global(h2::before) {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 15px;
+    width: 4px;
+    height: 28px;
+    border-radius: 4px;
+    background: var(--sina-ruby);
+  }
+
+  .material-content :global(h3) {
+    margin: 48px 0 17px;
+    color: #30363b;
+    font-size: 21px;
+    line-height: 1.9;
+    font-weight: 700;
+    scroll-margin-top: 100px;
+  }
+
+  .material-content :global(h4) {
+    margin: 35px 0 14px;
+    font-size: 18px;
+    line-height: 1.9;
+  }
+
+  .material-content :global(a) {
+    color: var(--reading-accent);
+    text-decoration: underline;
+    text-decoration-color: rgba(0, 127, 128, .35);
+    text-underline-offset: 4px;
+  }
+
+  .material-content :global(a:hover) {
+    color: var(--reading-highlight);
+  }
+
+  .material-content :global(strong) {
+    color: #252b32;
+    font-weight: 700;
+  }
+
+  .material-content :global(blockquote) {
+    position: relative;
+    margin: 42px 0;
+    padding: 28px 32px 28px 25px;
+    border: 0;
+    border-right: 3px solid var(--sina-ruby);
+    background: #f2efea;
+    color: #555a5e;
+    font-family: var(--font-literary);
+    font-size: 22px;
+    line-height: 2;
+  }
+
+  .material-content :global(blockquote p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .material-content :global(ul),
+  .material-content :global(ol) {
+    margin: 25px 0 35px;
+    padding-right: 27px;
+  }
+
+  .material-content :global(li) {
+    margin: 9px 0;
+    padding-right: 5px;
+  }
+
+  .material-content :global(li::marker) {
+    color: var(--sina-ruby);
+  }
+
+  .material-content :global(hr) {
+    width: 70px;
+    height: 2px;
+    margin: 55px auto;
+    border: 0;
+    background: var(--sina-ruby);
+  }
+
+  .material-content :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 620px;
+    margin: 42px auto 14px;
+    object-fit: contain;
+    border-radius: 4px;
+  }
+
+  .material-content :global(figure) {
+    margin: 42px 0;
+  }
+
+  .material-content :global(figure img) {
+    margin: 0 auto 12px;
+  }
+
+  .material-content :global(figcaption) {
+    color: var(--reading-muted);
+    font-size: 12px;
+    line-height: 1.9;
+    text-align: center;
+  }
+
+  .material-content :global(table) {
+    display: block;
+    width: 100%;
+    margin: 35px 0;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .material-content :global(th),
+  .material-content :global(td) {
+    padding: 13px 16px;
+    border: 1px solid var(--reading-line);
+    text-align: right;
+  }
+
+  .material-content :global(th) {
+    background: #f0eee9;
+    font-weight: 700;
+  }
+
+  .material-content :global(code) {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #efede8;
+    font-size: .88em;
+  }
+
+  .material-content :global(pre) {
+    padding: 22px;
+    overflow-x: auto;
+    direction: ltr;
+    text-align: left;
+    border: 1px solid var(--reading-line);
+    background: #f0eee9;
+    border-radius: 5px;
+  }
+
+  .material-content :global(pre code) {
+    padding: 0;
+    background: transparent;
+  }
+
+  .material-sidebar {
+    position: sticky;
+    top: 100px;
+  }
+
+  .material-sidebar[hidden] {
+    display: none;
+  }
+
+  .toc-card {
+    padding: 24px 20px;
+    border: 1px solid var(--reading-line);
+    background: rgba(255, 255, 255, .55);
+  }
+
+  .toc-kicker {
+    color: var(--reading-accent);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .toc-card h2 {
+    margin: 8px 0 18px;
+    font-size: 18px;
+  }
+
+  .toc-card ol {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toc-card a {
+    display: block;
+    color: var(--reading-muted);
+    font-size: 12px;
+    line-height: 1.9;
+    transition: color .2s ease;
+  }
+
+  .toc-card a:hover,
+  .toc-card a.is-active {
+    color: var(--reading-highlight);
+  }
+
+  .toc-card a.toc-subitem {
+    padding-right: 13px;
+    font-size: 11px;
+  }
+
+  .toc-progress {
+    margin-top: 25px;
+    padding-top: 18px;
+    border-top: 1px solid var(--reading-line);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: var(--reading-muted);
+    font-size: 10px;
+  }
+
+  .toc-progress-track {
+    width: 100%;
+    height: 3px;
+    overflow: hidden;
+    background: var(--reading-line);
+  }
+
+  .toc-progress-track span {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: var(--sina-ruby);
+  }
+
+  .material-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    margin-top: 65px;
+    padding-top: 25px;
+    border-top: 1px solid var(--reading-line);
+  }
+
+  .tags-label {
+    color: var(--reading-muted);
+    font-size: 11px;
+  }
+
+  .tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tags-list span {
+    padding: 5px 12px;
+    border: 1px solid var(--reading-line);
+    color: var(--reading-muted);
+    font-size: 11px;
+  }
+
+  .material-end {
+    margin-top: 65px;
+    padding: 35px 0;
+    border-top: 1px solid var(--reading-line);
+    text-align: center;
+  }
+
+  .end-mark {
+    display: block;
+    width: 34px;
+    height: 3px;
+    margin: 0 auto 15px;
+    background: var(--sina-ruby);
+  }
+
+  .material-end p {
+    margin: 0 0 10px;
+    color: var(--reading-muted);
+    font-size: 12px;
+  }
+
+  .material-end a {
+    color: var(--reading-accent);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  @media (max-width: 1000px) {
+    .reading-layout {
+      grid-template-columns: minmax(0, 1fr) 190px;
+      gap: 35px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .material-shell {
+      width: min(100% - 36px, 680px);
+    }
+
+    .material-hero {
+      padding-top: 50px;
+    }
+
+    .material-hero h1 {
+      font-size: clamp(30px, 8vw, 43px);
+    }
+
+    .material-cover {
+      margin-top: 32px;
+    }
+
+    .hero-bottom {
+      margin-top: 28px;
+    }
+
+    .reading-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      padding-top: 35px;
+    }
+
+    .material-sidebar {
+      position: static;
+      order: -1;
+      width: 100%;
+    }
+
+    .toc-card {
+      padding: 18px;
+    }
+
+    .toc-card ol {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 15px;
+    }
+
+    .material-content {
+      font-size: 16px;
+      line-height: 2.35;
+    }
+
+    .material-content :global(h2) {
+      margin-top: 55px;
+    }
+
+    .material-content :global(blockquote) {
+      padding: 20px;
+      font-size: 20px;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .material-shell {
+      width: calc(100% - 28px);
+    }
+
+    .material-breadcrumb {
+      gap: 7px;
+      font-size: 10px;
+    }
+
+    .material-meta {
+      gap: 8px;
+      font-size: 10px;
+    }
+
+    .hero-bottom {
+      font-size: 10px;
+    }
+
+    .toc-card ol {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .material-page * {
+      scroll-behavior: auto !important;
+      transition: none !important;
+    }
+  }
+</style>

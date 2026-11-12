@@ -1,11 +1,141 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
-<Layout>
-	<Welcome />
+<Layout
+  title="روانکاوی و فلسفه | سینا یعقوبی"
+  description="فضایی برای مطالعه و تأمل در روانکاوی و فلسفه."
+>
+  <section class="home-hero">
+    <div class="container">
+      <span class="eyebrow">اندیشه و تأمل</span>
+      <h1>دو مسیر برای<br /><span>فهم جهان و انسان</span></h1>
+      <p>
+        اینجا فضایی برای مواجهه با ایده‌ها، نظریه‌ها و پرسش‌هایی است
+        که فهم ما از ذهن، انسان و جهان را گسترش می‌دهند.
+      </p>
+      <div class="home-links">
+        <a href="/psychoanalysis/" class="home-card">
+          <span class="card-index">01 / PSYCHOANALYSIS</span>
+          <span class="card-mark">ر</span>
+          <strong>روانکاوی</strong>
+          <span class="card-description">نظریه، تجربه روانی و اندیشه روانکاوانه</span>
+          <span class="card-arrow">←</span>
+        </a>
+        <a href="/philosophy/" class="home-card">
+          <span class="card-index">02 / PHILOSOPHY</span>
+          <span class="card-mark philosophy-mark">ف</span>
+          <strong>فلسفه</strong>
+          <span class="card-description">پرسش‌های بنیادین درباره انسان، شناخت و هستی</span>
+          <span class="card-arrow">←</span>
+        </a>
+      </div>
+    </div>
+  </section>
 </Layout>
+
+<style>
+  .home-hero {
+    min-height: 690px;
+    padding: 105px 0 110px;
+    background:
+      radial-gradient(ellipse at 80% 25%, rgba(0,159,154,.07), transparent 35%),
+      linear-gradient(120deg, #fff 45%, #FAFCFB);
+  }
+
+  .home-hero h1 {
+    margin: 24px 0 15px;
+    font-size: clamp(38px, 5.5vw, 66px);
+    line-height: 1.55;
+    letter-spacing: -.045em;
+  }
+
+  .home-hero h1 span {
+    color: var(--sina-teal-deep);
+  }
+
+  .home-hero > .container > p {
+    max-width: 570px;
+    color: var(--sina-muted);
+    font-size: 14px;
+    line-height: 2.3;
+  }
+
+  .home-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    max-width: 900px;
+    margin-top: 55px;
+  }
+
+  .home-card {
+    position: relative;
+    min-height: 245px;
+    padding: 27px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: white;
+    border: 1px solid var(--sina-border);
+    border-radius: 16px;
+    transition: .25s ease;
+  }
+
+  .home-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(0,159,154,.45);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .card-index {
+    color: #929C99;
+    font-size: 9px;
+    letter-spacing: .12em;
+    direction: ltr;
+  }
+
+  .card-mark {
+    margin: 14px 0 4px;
+    color: var(--sina-teal-deep);
+    font-family: var(--font-literary);
+    font-size: 38px;
+  }
+
+  .philosophy-mark {
+    color: var(--sina-ruby);
+  }
+
+  .home-card strong {
+    font-size: 22px;
+  }
+
+  .card-description {
+    margin-top: 7px;
+    color: var(--sina-muted);
+    font-size: 12px;
+  }
+
+  .card-arrow {
+    position: absolute;
+    left: 27px;
+    bottom: 25px;
+    color: var(--sina-ruby);
+    font-size: 20px;
+  }
+
+  @media(max-width: 650px) {
+    .home-hero {
+      padding: 70px 0;
+    }
+
+    .home-links {
+      grid-template-columns: 1fr;
+      margin-top: 35px;
+    }
+
+    .home-card {
+      min-height: 220px;
+    }
+  }
+</style>
