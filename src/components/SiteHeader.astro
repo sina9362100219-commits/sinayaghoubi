@@ -6,12 +6,20 @@ const navigation = [
 ];
 
 const currentPath = Astro.url.pathname;
+const isCurrent = (href: string) =>
+  href === '/' ? currentPath === '/' : currentPath.startsWith(href);
 ---
 
 <header id="top" class="site-header">
+  <a class="skip-link" href="#main-content">
+    رفتن به محتوای اصلی
+  </a>
   <div class="container header-inner">
-    <a class="brand" href="/" aria-label="روانکاوی با سینا، صفحه اصلی">
-      <span class="brand-mark" aria-hidden="true">س</span>
+    <a class="brand" href="/" aria-label="روانکاوی با سینا، صفحهٔ اصلی">
+      <span class="brand-mark" aria-hidden="true">
+        <span>س</span>
+        <i></i>
+      </span>
       <span class="brand-copy">
         <strong>روانکاوی با سینا</strong>
         <small>روانکاوی و فلسفه</small>
@@ -20,17 +28,14 @@ const currentPath = Astro.url.pathname;
 
     <nav class="desktop-nav" aria-label="منوی اصلی">
       {navigation.map((item) => (
-        <a
-          href={item.href}
-          aria-current={currentPath === item.href ? 'page' : undefined}
-        >
+        <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
           {item.label}
         </a>
       ))}
     </nav>
 
     <details class="mobile-menu">
-      <summary aria-label="باز و بسته کردن منوی سایت">
+      <summary aria-label="باز کردن منوی سایت">
         <span class="menu-lines" aria-hidden="true">
           <span></span>
           <span></span>
@@ -38,10 +43,7 @@ const currentPath = Astro.url.pathname;
       </summary>
       <nav aria-label="منوی موبایل">
         {navigation.map((item) => (
-          <a
-            href={item.href}
-            aria-current={currentPath === item.href ? 'page' : undefined}
-          >
+          <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
             {item.label}
           </a>
         ))}
@@ -53,133 +55,119 @@ const currentPath = Astro.url.pathname;
 <style>
   .site-header {
     position: sticky;
-    top: 0;
     z-index: 20;
-    border-bottom: 1px solid rgba(37, 43, 50, .09);
-    background: rgba(255, 255, 255, .92);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-  }
-
-  .site-header::after {
-    position: absolute;
-    right: 0;
-    bottom: -1px;
-    left: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(0, 127, 128, .35), transparent);
-    content: '';
-    pointer-events: none;
+    inset-block-start: 0;
+    border-block-end: 1px solid var(--sina-border);
+    background: rgba(255, 255, 255, 0.97);
   }
 
   .header-inner {
-    min-height: 82px;
     display: flex;
+    min-block-size: var(--header-height);
     align-items: center;
     justify-content: space-between;
-    gap: 32px;
+    gap: var(--space-8);
   }
 
   .brand {
     display: inline-flex;
     flex-shrink: 0;
     align-items: center;
-    gap: 12px;
+    gap: var(--space-3);
   }
 
   .brand-mark {
     position: relative;
     display: grid;
+    inline-size: 44px;
+    block-size: 44px;
+    flex-shrink: 0;
     place-items: center;
-    width: 46px;
-    height: 46px;
-    border: 1px solid rgba(0, 127, 128, .16);
-    border-radius: 15px 15px 15px 5px;
-    background: linear-gradient(145deg, #f1faf7, #e1f1ec);
-    box-shadow: 0 5px 16px rgba(0, 127, 128, .08);
+    border: 1px solid rgba(0, 127, 128, 0.28);
     color: var(--sina-teal-deep);
+  }
+
+  .brand-mark > span {
     font-family: var(--font-literary);
     font-size: 30px;
     line-height: 1;
   }
 
-  .brand-mark::after {
+  .brand-mark i {
     position: absolute;
-    top: 6px;
-    left: 6px;
-    width: 5px;
-    height: 5px;
+    inset-block-start: 5px;
+    inset-inline-start: 5px;
+    inline-size: 5px;
+    block-size: 5px;
     border-radius: 50%;
     background: var(--sina-ruby);
-    content: '';
   }
 
   .brand-copy {
     display: grid;
-    gap: 1px;
     line-height: 1.65;
   }
 
   .brand-copy strong {
     color: var(--sina-charcoal);
-    font-size: 15px;
+    font-size: var(--text-sm);
     font-weight: 800;
   }
 
   .brand-copy small {
     color: var(--sina-muted);
-    font-size: 10px;
-    letter-spacing: .02em;
+    font-size: var(--text-xs);
   }
 
   .desktop-nav {
     display: flex;
     align-items: center;
-    gap: 7px;
-    padding: 5px;
-    border: 1px solid rgba(37, 43, 50, .07);
-    border-radius: 999px;
-    background: rgba(248, 250, 249, .85);
+    gap: var(--space-6);
+  }
+
+  .desktop-nav a,
+  .mobile-menu nav a {
+    min-block-size: 44px;
+    color: var(--sina-muted);
+    font-size: var(--text-sm);
+    transition: color 160ms ease;
   }
 
   .desktop-nav a {
     position: relative;
-    padding: 8px 17px;
-    border-radius: 999px;
-    color: #59616a;
-    font-size: 12px;
-    font-weight: 600;
-    transition: color .2s ease, background .2s ease, box-shadow .2s ease;
+    display: inline-flex;
+    align-items: center;
   }
 
-  .desktop-nav a:hover {
-    color: var(--sina-teal-deep);
-    background: white;
+  .desktop-nav a::after {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 6px;
+    block-size: 2px;
+    transform: scaleX(0);
+    transform-origin: right;
+    background: var(--sina-teal-deep);
+    content: '';
+    transition: transform 160ms ease;
   }
 
-  .desktop-nav a[aria-current="page"] {
-    background: white;
-    box-shadow: 0 2px 9px rgba(37, 43, 50, .07);
+  .desktop-nav a:hover,
+  .desktop-nav a[aria-current='page'],
+  .mobile-menu nav a:hover,
+  .mobile-menu nav a[aria-current='page'] {
     color: var(--sina-teal-deep);
+  }
+
+  .desktop-nav a:hover::after,
+  .desktop-nav a[aria-current='page']::after {
+    transform: scaleX(1);
   }
 
   .mobile-menu {
     display: none;
   }
 
-  .brand:focus-visible,
-  .desktop-nav a:focus-visible,
-  .mobile-menu a:focus-visible,
-  .mobile-menu summary:focus-visible {
-    outline: 3px solid rgba(0, 159, 154, .35);
-    outline-offset: 3px;
-  }
-
-  @media (max-width: 900px) {
-    .header-inner {
-      min-height: 72px;
-    }
-
+  @media (max-width: 760px) {
     .desktop-nav {
       display: none;
     }
@@ -191,83 +179,65 @@ const currentPath = Astro.url.pathname;
 
     .mobile-menu summary {
       display: grid;
+      inline-size: 44px;
+      block-size: 44px;
       place-items: center;
-      width: 44px;
-      height: 44px;
       border: 1px solid var(--sina-border);
-      border-radius: 14px;
-      background: rgba(255, 255, 255, .8);
+      background: var(--sina-white);
       cursor: pointer;
       list-style: none;
-      transition: border-color .2s ease, background .2s ease;
     }
 
     .mobile-menu summary::-webkit-details-marker {
       display: none;
     }
 
-    .mobile-menu summary:hover,
-    .mobile-menu[open] summary {
-      border-color: rgba(0, 127, 128, .35);
-      background: #f3faf7;
-    }
-
     .menu-lines {
       display: grid;
-      gap: 6px;
+      gap: 5px;
     }
 
     .menu-lines span {
-      width: 19px;
-      height: 2px;
-      border-radius: 2px;
+      inline-size: 18px;
+      block-size: 2px;
       background: var(--sina-charcoal);
-      transition: transform .2s ease;
+      transition: transform 160ms ease;
     }
 
     .mobile-menu[open] .menu-lines span:first-child {
-      transform: translateY(4px) rotate(45deg);
+      transform: translateY(3.5px) rotate(45deg);
     }
 
     .mobile-menu[open] .menu-lines span:last-child {
-      transform: translateY(-4px) rotate(-45deg);
+      transform: translateY(-3.5px) rotate(-45deg);
     }
 
     .mobile-menu nav {
       position: absolute;
-      top: calc(100% + 12px);
-      right: 0;
-      width: min(250px, calc(100vw - 32px));
-      padding: 9px;
+      inset-block-start: calc(100% + var(--space-2));
+      inset-inline-end: 0;
       display: grid;
-      gap: 4px;
+      min-inline-size: 190px;
+      padding: var(--space-2);
       border: 1px solid var(--sina-border);
-      border-radius: 18px;
-      background: rgba(255, 255, 255, .98);
-      box-shadow: 0 18px 48px rgba(37, 43, 50, .14);
+      background: var(--sina-white);
+      box-shadow: var(--shadow-soft);
     }
 
     .mobile-menu nav a {
-      padding: 11px 13px;
-      border-radius: 11px;
-      color: #59616a;
-      font-size: 13px;
-      font-weight: 600;
-      transition: color .2s ease, background .2s ease;
-    }
-
-    .mobile-menu nav a:hover,
-    .mobile-menu nav a[aria-current="page"] {
-      background: var(--sina-tint-teal-soft);
-      color: var(--sina-teal-deep);
+      display: flex;
+      align-items: center;
+      padding-inline: var(--space-3);
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .site-header *,
-    .site-header *::before,
-    .site-header *::after {
-      transition: none !important;
+  @media (max-width: 360px) {
+    .header-inner {
+      gap: var(--space-3);
+    }
+
+    .brand-copy strong {
+      font-size: 0.8125rem;
     }
   }
 </style>

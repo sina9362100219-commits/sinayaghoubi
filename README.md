@@ -1,46 +1,37 @@
-# Astro Starter Kit: Basics
+# روان‌کاوی با سینا
+
+مجله‌ای فارسی دربارهٔ روان‌کاوی، فلسفه و پژوهش‌های روان‌شناختی. وب‌سایت با Astro و خروجی ایستا ساخته می‌شود؛ مقاله‌ها در Markdown نگهداری می‌شوند و تنظیمات انتشار Cloudflare در `wrangler.jsonc` قرار دارد.
+
+## توسعه و اعتبارسنجی
+
+پروژه به Node.js و وابستگی‌های ثبت‌شده در `package-lock.json` نیاز دارد:
 
 ```sh
-npm create astro@latest -- --template basics
+npm ci
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+برای اجرای بررسی‌های پروژه:
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+```sh
+npm run validate
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+برای ساخت خروجی استاتیک:
 
-## 🧞 Commands
+```sh
+npm run build
+```
 
-All commands are run from the root of the project, from a terminal:
+خروجی در `dist/` قرار می‌گیرد. آزمون‌های مرورگر Playwright به مرورگر نصب‌شده نیاز دارند و تنظیمات آن در `playwright.config.ts` است.
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## محتوا و طراحی
 
-## 👀 Want to learn more?
+- مقاله‌ها در `src/content/materials/` و مطابق Content Collection موجود نگهداری شوند.
+- فایل‌های تصویری مقاله در `public/images/articles/` و تصویرهای صفحهٔ اصلی در `public/images/hero/` قرار می‌گیرند.
+- فونت‌های محلی و مجوزهایشان در `public/fonts/` نگهداری می‌شوند.
+- توکن‌های طراحی، دستورهای استفاده از آیکون و راهنمای تصاویر در [راهنمای طراحی و نگهداری](./docs/design-system.md) آمده‌اند.
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+## انتشار
+
+ابتدا `npm run build` را اجرا کنید. انتشار مستقیم با `npx wrangler deploy` نیازمند احراز هویت مجاز Cloudflare است؛ این فرمان در بررسی‌های خودکار اجرا نمی‌شود. تنظیمات استقرار موجود در `wrangler.jsonc` باید بدون تغییر باقی بماند مگر با تصمیم جداگانه.

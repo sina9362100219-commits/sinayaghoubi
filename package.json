@@ -9,12 +9,34 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "check": "astro check",
+    "lint": "eslint .",
+    "format:check": "prettier --check \"src/**/*.{astro,ts,js,md}\" \"tests/**/*.{ts,js}\" \"*.json\" \"*.mjs\" \"*.js\"",
+    "test": "vitest run --passWithNoTests",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "validate": "npm run check && npm run lint && npm run format:check && npm run test && npm run test:e2e && npm run build"
   },
   "dependencies": {
+    "@lucide/astro": "^1.72.0",
     "astro": "^7.4.10"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@axe-core/playwright": "^4.14.0",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.0",
+    "@typescript-eslint/parser": "^8.72.2",
+    "eslint": "^10.14.0",
+    "eslint-plugin-astro": "^3.2.1",
+    "lighthouse": "^13.6.0",
+    "prettier": "^3.10.1",
+    "prettier-plugin-astro": "^1.1.2",
+    "sharp": "^0.35.5",
+    "svgo": "^4.1.0",
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.0",
     "wrangler": "^4.160.1"
   },
   "allowScripts": {

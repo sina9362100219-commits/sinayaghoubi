@@ -1,127 +1,30 @@
 ---
 import { getCollection } from 'astro:content';
+import MaterialArchive from '../../components/MaterialArchive.astro';
 import Layout from '../../layouts/Layout.astro';
 
 const entries = await getCollection(
   'content',
-  ({ data }) => data.section === 'philosophy' && !data.draft
+  ({ data }) => data.section === 'philosophy' && !data.draft,
 );
 
-entries.sort((a, b) =>
-  (b.data.publishedAt ?? '').localeCompare(a.data.publishedAt ?? '')
-);
+entries.sort((a, b) => (b.data.publishedAt ?? '').localeCompare(a.data.publishedAt ?? ''));
 ---
 
-<Layout title="فلسفه | روانکاوی با سینا" description="جست‌وجو در اندیشه‌های فلسفی و پرسش‌های بنیادین انسان و جهان.">
-  <section class="section-page">
+<Layout
+  title="فلسفه | روانکاوی با سینا"
+  description="جست‌وجو در اندیشه‌های فلسفی و پرسش‌های بنیادین انسان و جهان."
+>
+  <section class="section archive-page" aria-labelledby="archive-title">
     <div class="container">
-      <div class="page-heading">
-        <span class="eyebrow">PHILOSOPHY</span>
-        <h1>فلسفه</h1>
+      <header class="archive-heading">
+        <div>
+          <span class="eyebrow">فلسفه / آرشیو</span>
+          <h1 id="archive-title">فلسفه</h1>
+        </div>
         <p>جست‌وجو در اندیشه‌های فلسفی و پرسش‌های بنیادین انسان و جهان.</p>
-      </div>
-
-      {entries.length > 0 ? (
-        <div class="entry-grid">
-          {entries.map((entry) => (
-            <a class="entry-card" href={`/materials/${entry.id}/`}>
-              <span class="entry-date">{entry.data.publishedAt ?? ''}</span>
-              <h2>{entry.data.title}</h2>
-              <p>{entry.data.description}</p>
-              <span class="entry-link">مطالعه مطلب ←</span>
-            </a>
-          ))}
-        </div>
-      ) : (
-        <div class="empty-state">
-          <span>—</span>
-          <p>مطالب این بخش به‌زودی منتشر خواهند شد.</p>
-        </div>
-      )}
+      </header>
+      <MaterialArchive entries={entries} />
     </div>
   </section>
 </Layout>
-
-<style>
-  .section-page {
-    min-height: 65vh;
-    padding: 85px 0 110px;
-    background: #FAFCFB;
-  }
-
-  .page-heading {
-    padding-bottom: 35px;
-    border-bottom: 1px solid var(--sina-border);
-  }
-
-  .page-heading h1 {
-    margin: 18px 0 8px;
-    font-size: clamp(35px, 5vw, 54px);
-  }
-
-  .page-heading p {
-    color: var(--sina-muted);
-    font-size: 14px;
-    line-height: 2;
-  }
-
-  .entry-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-    margin-top: 35px;
-  }
-
-  .entry-card {
-    padding: 27px;
-    background: white;
-    border: 1px solid var(--sina-border);
-    border-radius: 14px;
-    transition: .2s ease;
-  }
-
-  .entry-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--sina-teal);
-    box-shadow: var(--shadow-soft);
-  }
-
-  .entry-date {
-    color: #929C99;
-    font-size: 11px;
-  }
-
-  .entry-card h2 {
-    margin: 16px 0 8px;
-    font-size: 21px;
-  }
-
-  .entry-card p {
-    color: var(--sina-muted);
-    font-size: 13px;
-    line-height: 2;
-  }
-
-  .entry-link {
-    display: inline-block;
-    margin-top: 15px;
-    color: var(--sina-ruby);
-    font-size: 12px;
-  }
-
-  .empty-state {
-    padding: 65px 15px;
-    text-align: center;
-    color: var(--sina-muted);
-  }
-
-  .empty-state span {
-    color: var(--sina-teal);
-    font-size: 30px;
-  }
-
-  @media(max-width: 650px) {
-    .entry-grid { grid-template-columns: 1fr; }
-    .section-page { padding-top: 60px; }
-  }
-</style>

@@ -17,6 +17,13 @@ pnpm-debug.log*
 .env
 .env.production
 
+# Test and audit output
+coverage/
+playwright-report/
+test-results/
+lighthouse-report.*
+.wrangler/
+
 # macOS-specific files
 .DS_Store
 

@@ -1,12 +1,10 @@
 ﻿---
 import { getCollection, render } from 'astro:content';
+import { estimateReadingMinutes } from '../../lib/reading-time';
 import Layout from '../../layouts/Layout.astro';
 
 export async function getStaticPaths() {
-  const entries = await getCollection(
-    'content',
-    ({ data }) => !data.draft
-  );
+  const entries = await getCollection('content', ({ data }) => !data.draft);
 
   return entries.map((entry) => ({
     params: { slug: entry.id },
@@ -17,26 +15,22 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
-const sectionTitle =
-  entry.data.section === 'psychoanalysis' ? 'روانکاوی' : 'فلسفه';
+const sectionTitle = entry.data.section === 'psychoanalysis' ? 'روانکاوی' : 'فلسفه';
 
-const sectionUrl =
-  entry.data.section === 'psychoanalysis'
-    ? '/psychoanalysis/'
-    : '/philosophy/';
+const sectionUrl = entry.data.section === 'psychoanalysis' ? '/psychoanalysis/' : '/philosophy/';
 
-const wordCount =
-  (entry.body ?? '').match(/[\p{L}\p{N}]+/gu)?.length ?? 0;
-
-const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
+const readingMinutes = estimateReadingMinutes(entry.body ?? '');
 ---
 
 <Layout
   title={`${entry.data.title} | روانکاوی با سینا`}
   description={entry.data.description}
+  type="article"
+  socialImage={entry.data.cover}
+  socialImageAlt={entry.data.coverAlt}
 >
   <article class="material-page">
-    <div class="reading-progress" data-reading-progress></div>
+    <div class="reading-progress" data-reading-progress aria-hidden="true"></div>
 
     <div class="material-shell">
       <nav class="material-breadcrumb" aria-label="مسیر صفحه">
@@ -70,7 +64,10 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
             <img
               src={entry.data.cover}
               alt={entry.data.coverAlt ?? entry.data.title}
+              width="1200"
+              height="650"
               fetchpriority="high"
+              decoding="async"
             />
           </figure>
         )}
@@ -82,7 +79,7 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
       </header>
 
       <div class="reading-layout">
-        <main class="reading-main">
+        <div class="reading-main">
           <div class="material-content" data-reading-content>
             <Content />
           </div>
@@ -91,7 +88,9 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
             <div class="material-tags">
               <span class="tags-label">موضوعات مرتبط</span>
               <div class="tags-list">
-                {entry.data.tags.map((tag) => <span>{tag}</span>)}
+                {entry.data.tags.map((tag) => (
+                  <span>{tag}</span>
+                ))}
               </div>
             </div>
           )}
@@ -101,7 +100,7 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
             <p>پایان مطلب</p>
             <a href={sectionUrl}>بازگشت به بخش {sectionTitle}</a>
           </div>
-        </main>
+        </div>
 
         <aside class="material-sidebar" data-toc hidden>
           <div class="toc-card">
@@ -113,7 +112,15 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
             <div class="toc-progress">
               <span>پیشرفت مطالعه</span>
               <span data-progress-label>۰٪</span>
-              <div class="toc-progress-track">
+              <div
+                class="toc-progress-track"
+                data-progress-track
+                role="progressbar"
+                aria-label="پیشرفت مطالعه"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+              >
                 <span data-progress-bar></span>
               </div>
             </div>
@@ -126,16 +133,15 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
 
 <script>
   const article = document.querySelector('[data-reading-content]');
-  const toc = document.querySelector('[data-toc]');
+  const toc = document.querySelector<HTMLElement>('[data-toc]');
   const tocList = document.querySelector('[data-toc-list]');
   const progressLine = document.querySelector('[data-reading-progress]');
   const progressBar = document.querySelector('[data-progress-bar]');
   const progressLabel = document.querySelector('[data-progress-label]');
+  const progressTrack = document.querySelector<HTMLElement>('[data-progress-track]');
 
   if (article && toc && tocList) {
-    const headings = Array.from(
-      article.querySelectorAll('h2, h3')
-    );
+    const headings = Array.from(article.querySelectorAll('h2, h3'));
 
     if (headings.length > 0) {
       headings.forEach((heading, index) => {
@@ -165,13 +171,13 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
               links.forEach((link) => {
                 link.classList.toggle(
                   'is-active',
-                  link.getAttribute('href') === `#${entry.target.id}`
+                  link.getAttribute('href') === `#${entry.target.id}`,
                 );
               });
             }
           });
         },
-        { rootMargin: '-15% 0px -70% 0px' }
+        { rootMargin: '-15% 0px -70% 0px' },
       );
 
       headings.forEach((heading) => observer.observe(heading));
@@ -184,9 +190,7 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
     const rect = article.getBoundingClientRect();
     const total = article.scrollHeight - window.innerHeight;
     const passed = Math.max(0, -rect.top);
-    const percent = total > 0
-      ? Math.min(100, Math.max(0, (passed / total) * 100))
-      : 100;
+    const percent = total > 0 ? Math.min(100, Math.max(0, (passed / total) * 100)) : 100;
 
     if (progressLine instanceof HTMLElement) {
       progressLine.style.width = `${percent}%`;
@@ -199,6 +203,8 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
     if (progressLabel) {
       progressLabel.textContent = `${Math.round(percent)}٪`;
     }
+
+    progressTrack?.setAttribute('aria-valuenow', String(Math.round(percent)));
   }
 
   window.addEventListener('scroll', updateReadingProgress, {
@@ -211,10 +217,10 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
 
 <style>
   .material-page {
-    --reading-paper: #fbfaf7;
-    --reading-ink: #292d32;
-    --reading-muted: #747a80;
-    --reading-line: #e8e5df;
+    --reading-paper: var(--sina-white);
+    --reading-ink: var(--sina-charcoal);
+    --reading-muted: var(--sina-muted);
+    --reading-line: var(--sina-border);
     --reading-accent: var(--sina-teal-deep);
     --reading-highlight: var(--sina-ruby);
 
@@ -226,12 +232,13 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
 
   .reading-progress {
     position: fixed;
-    inset: 0 auto auto 0;
+    inset-block-start: 0;
+    inset-inline-start: 0;
     width: 0;
     height: 3px;
     background: var(--sina-ruby);
     z-index: 100;
-    transition: width .08s linear;
+    transition: width 0.08s linear;
   }
 
   .material-shell {
@@ -250,7 +257,7 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
   }
 
   .material-breadcrumb a {
-    transition: color .2s ease;
+    transition: color 0.2s ease;
   }
 
   .material-breadcrumb a:hover {
@@ -298,10 +305,9 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
   .material-hero h1 {
     max-width: 900px;
     margin: 24px 0 18px;
-    font-size: clamp(34px, 5.2vw,  sixty);
     font-size: clamp(34px, 5.2vw, 60px);
     line-height: 1.55;
-    letter-spacing: -.045em;
+    letter-spacing: -0.045em;
     font-weight: 800;
   }
 
@@ -336,7 +342,7 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
     margin-top: 42px;
     color: #92918b;
     font-size: 11px;
-    letter-spacing: .04em;
+    letter-spacing: 0.04em;
   }
 
   .reading-layout {
@@ -354,13 +360,17 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
 
   .material-content {
     color: #35383b;
-    font-size: 17px;
-    line-height: 2.45;
+    font-size: 18px;
+    line-height: 2.2;
     overflow-wrap: break-word;
   }
 
   .material-content :global(> :first-child) {
     margin-top: 0;
+  }
+
+  .material-content :global(> h1:first-child) {
+    display: none;
   }
 
   .material-content :global(p) {
@@ -407,7 +417,7 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
   .material-content :global(a) {
     color: var(--reading-accent);
     text-decoration: underline;
-    text-decoration-color: rgba(0, 127, 128, .35);
+    text-decoration-color: rgba(0, 127, 128, 0.35);
     text-underline-offset: 4px;
   }
 
@@ -510,7 +520,7 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
     padding: 2px 6px;
     border-radius: 4px;
     background: #efede8;
-    font-size: .88em;
+    font-size: 0.88em;
   }
 
   .material-content :global(pre) {
@@ -540,7 +550,7 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
   .toc-card {
     padding: 24px 20px;
     border: 1px solid var(--reading-line);
-    background: rgba(255, 255, 255, .55);
+    background: rgba(255, 255, 255, 0.55);
   }
 
   .toc-kicker {
@@ -568,7 +578,7 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
     color: var(--reading-muted);
     font-size: 12px;
     line-height: 1.9;
-    transition: color .2s ease;
+    transition: color 0.2s ease;
   }
 
   .toc-card a:hover,
@@ -715,7 +725,7 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
 
     .material-content {
       font-size: 16px;
-      line-height: 2.35;
+      line-height: 2.15;
     }
 
     .material-content :global(h2) {

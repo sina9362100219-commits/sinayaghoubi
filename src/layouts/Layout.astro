@@ -6,12 +6,24 @@ import SiteFooter from '../components/SiteFooter.astro';
 interface Props {
   title?: string;
   description?: string;
+  type?: 'website' | 'article';
+  socialImage?: string;
+  socialImageAlt?: string;
+  noIndex?: boolean;
 }
 
 const {
   title = 'روانکاوی با سینا | اندیشه، آموزش و درمان',
   description = 'وب‌سایت روانکاوی با سینا؛ فضایی برای آموزش، پژوهش و آشنایی با روان‌درمانی روانکاوانه.',
+  type = 'website',
+  socialImage,
+  socialImageAlt,
+  noIndex = false,
 } = Astro.props;
+
+const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+const socialImageUrl =
+  Astro.site && socialImage ? new URL(socialImage, Astro.site).href : undefined;
 ---
 
 <!doctype html>
@@ -21,13 +33,37 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#FFFFFF" />
     <meta name="description" content={description} />
+    <meta
+      name="robots"
+      content={noIndex ? 'noindex, follow' : 'index, follow, max-image-preview:large'}
+    />
     <meta name="generator" content={Astro.generator} />
+    <meta property="og:locale" content="fa_IR" />
+    <meta property="og:site_name" content="روانکاوی با سینا" />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content={socialImageUrl ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+    {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+    {socialImageUrl && <meta property="og:image" content={socialImageUrl} />}
+    {socialImageUrl && socialImageAlt && <meta property="og:image:alt" content={socialImageAlt} />}
+    {socialImageUrl && <meta name="twitter:image" content={socialImageUrl} />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="preload"
+      href="/fonts/estedad-variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <title>{title}</title>
   </head>
   <body>
     <SiteHeader />
-    <main>
+    <main id="main-content" tabindex="-1">
       <slot />
     </main>
     <SiteFooter />
