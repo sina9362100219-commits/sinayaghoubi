@@ -18,7 +18,9 @@ entries.sort((a, b) => (b.data.publishedAt ?? '').localeCompare(a.data.published
   <section class="section-page" aria-labelledby="archive-title">
     <header class="page-heading">
       <span class="eyebrow">01 / PSYCHOANALYSIS</span>
-      <h1 id="archive-title">روانکاوی</h1>
+      <h1 id="archive-title" data-word-reveal>
+        روانکاوی
+      </h1>
       <p>مطالعهٔ نظریه‌ها، مفاهیم، متون و پرسش‌های روانکاوانه.</p>
     </header>
     <MaterialArchive entries={entries} />

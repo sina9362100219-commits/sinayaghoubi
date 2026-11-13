@@ -45,6 +45,111 @@ test('article table of contents links to rendered headings', async ({ page }) =>
   expect(targetsExist).toBe(true);
 });
 
+test('homepage category filters show only the selected section', async ({ page }) => {
+  await page.goto('/');
+  const filter = page.locator('[data-category-filter]');
+  await expect(filter).toBeVisible();
+  await filter.getByRole('button', { name: 'فلسفه' }).click();
+
+  const visibleCards = page.locator('[data-filter-card]:visible');
+  await expect(
+    page.locator('[data-filter-card][data-article-section="psychoanalysis"]:visible'),
+  ).toHaveCount(0);
+  await expect(visibleCards).not.toHaveCount(0);
+  const selectedSections = await visibleCards.evaluateAll((cards) =>
+    cards.map((card) => card.getAttribute('data-article-section')),
+  );
+  expect(new Set(selectedSections)).toEqual(new Set(['philosophy']));
+
+  await filter.getByRole('button', { name: 'روانکاوی' }).click();
+  await expect(
+    page.locator('[data-filter-card][data-article-section="philosophy"]:visible'),
+  ).toHaveCount(0);
+  const psychoanalysisSections = await page
+    .locator('[data-filter-card]:visible')
+    .evaluateAll((cards) => cards.map((card) => card.getAttribute('data-article-section')));
+  expect(new Set(psychoanalysisSections)).toEqual(new Set(['psychoanalysis']));
+});
+
+test('featured carousel pauses on hover', async ({ page }) => {
+  await page.goto('/');
+  const carousel = page.locator('[data-carousel]');
+  await carousel.hover();
+  await expect
+    .poll(() =>
+      page
+        .locator('[data-carousel-track]')
+        .evaluate((track) => getComputedStyle(track).animationPlayState),
+    )
+    .toBe('paused');
+});
+
+test('featured carousel supports pointer dragging', async ({ page }) => {
+  await page.goto('/');
+  const carousel = page.locator('[data-carousel]');
+  const track = page.locator('[data-carousel-track]');
+  await carousel.scrollIntoViewIfNeeded();
+  const bounds = await carousel.boundingBox();
+  expect(bounds).not.toBeNull();
+  if (!bounds) return;
+
+  const startX = bounds.x + bounds.width * 0.75;
+  const y = bounds.y + bounds.height / 2;
+  await page.mouse.move(startX, y);
+  await page.mouse.down();
+  await page.mouse.move(startX - 100, y, { steps: 6 });
+  await page.mouse.up();
+
+  await expect
+    .poll(() => track.evaluate((element) => (element as HTMLElement).style.animationDelay))
+    .not.toBe('');
+  await expect(track).not.toHaveClass(/is-dragging/);
+  await expect(page).toHaveURL('/');
+});
+
+test('reduced motion disables the marquee without hiding content', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+
+  const duration = await page
+    .locator('[data-carousel-track]')
+    .evaluate((track) => Number.parseFloat(getComputedStyle(track).animationDuration));
+  expect(duration).toBeLessThan(0.001);
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+});
+
+test('article card image reveals finish in the visible state', async ({ page }) => {
+  await page.goto('/');
+  const imageReveal = page.locator('[data-article-card] .image-reveal').first();
+  await imageReveal.scrollIntoViewIfNeeded();
+  await expect(imageReveal).toHaveClass(/is-visible/);
+  await expect(imageReveal).not.toHaveClass(/is-pending/);
+});
+
+test('article hero image opens and closes in the lightbox', async ({ page }) => {
+  await page.goto('/materials/anxiety-and-psychic-defenses/');
+  await page.getByRole('button', { name: /بزرگ‌نمایی تصویر/ }).click();
+
+  const lightbox = page.getByRole('dialog', { name: 'نمایش بزرگ تصویر' });
+  await expect(lightbox).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(lightbox).not.toBeVisible();
+});
+
+test('article reading experience includes related stories and progress', async ({ page }) => {
+  await page.goto('/materials/anxiety-and-psychic-defenses/');
+  await expect(page.getByRole('heading', { name: 'نوشته‌های مرتبط' })).toBeVisible();
+  const progress = page.locator('[data-reading-progress]');
+  await expect(progress).toBeAttached();
+  await page.evaluate(() => {
+    document.documentElement.style.scrollBehavior = 'auto';
+    window.scrollTo(0, document.documentElement.scrollHeight);
+  });
+  await expect
+    .poll(() => progress.evaluate((element) => (element as HTMLElement).style.transform))
+    .toBe('scaleX(1)');
+});
+
 test('search dialog opens, accepts a query, and closes with Escape', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'جست‌وجو' }).click();

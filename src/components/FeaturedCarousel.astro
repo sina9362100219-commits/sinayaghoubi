@@ -1,0 +1,167 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { estimateReadingMinutes } from '../lib/reading-time';
+
+interface Props {
+  entries: CollectionEntry<'content'>[];
+}
+
+const { entries } = Astro.props;
+const sectionName = (section: CollectionEntry<'content'>['data']['section']) =>
+  section === 'psychoanalysis' ? 'روانکاوی' : 'فلسفه';
+---
+
+{entries.length > 0 && (
+  <section class="featured-carousel" aria-labelledby="featured-stories-title">
+    <header class="editorial-section-heading">
+      <div>
+        <span class="eyebrow">نوشته‌های برگزیده</span>
+        <h2 id="featured-stories-title">از میان نوشته‌ها</h2>
+      </div>
+      <span class="carousel-hint">
+        برای مرور، بکشید <span aria-hidden="true">←</span>
+      </span>
+    </header>
+
+    <div class="marquee-mask" data-carousel>
+      <div class="carousel-track" data-carousel-track>
+        <div class="carousel-set">
+          {entries.map((entry) => (
+            <article class="carousel-card" data-article-section={entry.data.section}>
+              <a class="carousel-card-link" href={`/materials/${entry.id}/`}>
+                <span class="carousel-card-image">
+                  <img
+                    src={entry.data.cover ?? '/images/hero/inner-landscape.svg'}
+                    alt=""
+                    width="480"
+                    height="640"
+                    loading="lazy"
+                    decoding="async"
+                    draggable="false"
+                  />
+                </span>
+                <span class="carousel-card-copy">
+                  <span class="carousel-card-section" data-section={entry.data.section}>
+                    {sectionName(entry.data.section)}
+                  </span>
+                  <span class="carousel-card-title">{entry.data.title}</span>
+                  <span class="carousel-card-meta">
+                    {estimateReadingMinutes(entry.body ?? '')} دقیقه مطالعه
+                    {entry.data.publishedAt && ` · ${entry.data.publishedAt}`}
+                  </span>
+                </span>
+              </a>
+            </article>
+          ))}
+        </div>
+        <div class="carousel-set" aria-hidden="true" inert>
+          {entries.map((entry) => (
+            <article class="carousel-card">
+              <a class="carousel-card-link" href={`/materials/${entry.id}/`} tabindex="-1">
+                <span class="carousel-card-image">
+                  <img
+                    src={entry.data.cover ?? '/images/hero/inner-landscape.svg'}
+                    alt=""
+                    width="480"
+                    height="640"
+                    loading="lazy"
+                    decoding="async"
+                    draggable="false"
+                  />
+                </span>
+                <span class="carousel-card-copy">
+                  <span class="carousel-card-section" data-section={entry.data.section}>
+                    {sectionName(entry.data.section)}
+                  </span>
+                  <span class="carousel-card-title">{entry.data.title}</span>
+                  <span class="carousel-card-meta">
+                    {estimateReadingMinutes(entry.body ?? '')} دقیقه مطالعه
+                    {entry.data.publishedAt && ` · ${entry.data.publishedAt}`}
+                  </span>
+                </span>
+              </a>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+<script>
+  const carousel = document.querySelector<HTMLElement>('[data-carousel]');
+  const track = carousel?.querySelector<HTMLElement>('[data-carousel-track]');
+
+  if (carousel && track) {
+    const carouselElement = carousel;
+    const trackElement = track;
+    let pointerStart = 0;
+    let trackStart = 0;
+    let activePointer: number | undefined;
+    let dragged = false;
+    let clickResetTimer = 0;
+
+    function currentTrackX() {
+      const transform = getComputedStyle(trackElement).transform;
+      if (transform === 'none') return 0;
+      return new DOMMatrixReadOnly(transform).m41;
+    }
+
+    function finishDrag(event: PointerEvent) {
+      if (activePointer !== event.pointerId) return;
+      const delta = event.clientX - pointerStart;
+      if (Math.abs(delta) > 5) dragged = true;
+
+      const cycleWidth = trackElement.scrollWidth / 2;
+      if (cycleWidth > 0) {
+        let position = (trackStart + delta) % cycleWidth;
+        if (position > 0) position -= cycleWidth;
+        const progress = -position / cycleWidth;
+        trackElement.style.animationDelay = `${-(progress * 42)}s`;
+      }
+
+      trackElement.style.setProperty('--drag-offset', '0px');
+      trackElement.classList.remove('is-dragging');
+      window.clearTimeout(clickResetTimer);
+      if (event.type === 'pointercancel') dragged = false;
+      else if (dragged) {
+        clickResetTimer = window.setTimeout(() => (dragged = false), 400);
+      }
+      if (carouselElement.hasPointerCapture(event.pointerId)) {
+        carouselElement.releasePointerCapture(event.pointerId);
+      }
+      activePointer = undefined;
+    }
+
+    carouselElement.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      activePointer = event.pointerId;
+      window.clearTimeout(clickResetTimer);
+      pointerStart = event.clientX;
+      trackStart = currentTrackX();
+      dragged = false;
+      trackElement.classList.add('is-dragging');
+      carouselElement.setPointerCapture(event.pointerId);
+    });
+
+    carouselElement.addEventListener('pointermove', (event) => {
+      if (activePointer !== event.pointerId) return;
+      const delta = event.clientX - pointerStart;
+      if (Math.abs(delta) > 5) dragged = true;
+      trackElement.style.setProperty('--drag-offset', `${delta}px`);
+    });
+
+    carouselElement.addEventListener('pointerup', finishDrag);
+    carouselElement.addEventListener('pointercancel', finishDrag);
+    carouselElement.addEventListener(
+      'click',
+      (event) => {
+        if (!dragged) return;
+        event.preventDefault();
+        event.stopPropagation();
+        dragged = false;
+      },
+      true,
+    );
+  }
+</script>

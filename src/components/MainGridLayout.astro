@@ -1,6 +1,7 @@
 ---
 import SiteFooter from './SiteFooter.astro';
 import SiteHeader from './SiteHeader.astro';
+import EditorialMotion from './EditorialMotion.astro';
 import Layout from '../layouts/Layout.astro';
 
 interface Props {
@@ -22,6 +23,7 @@ const {
   noIndex = false,
   isHome = false,
 } = Astro.props;
+const overHero = isHome || type === 'article';
 ---
 
 <Layout
@@ -33,10 +35,15 @@ const {
   noIndex={noIndex}
 >
   <div class="site-frame">
-    <SiteHeader />
-    <main id="main-content" class:list={['main-column', { 'home-main': isHome }]} tabindex="-1">
+    <SiteHeader overHero={overHero} />
+    <main
+      id="main-content"
+      class:list={['main-column', { 'home-main': isHome, 'hero-main': overHero }]}
+      tabindex="-1"
+    >
       <slot />
     </main>
     <SiteFooter />
+    <EditorialMotion />
   </div>
 </Layout>

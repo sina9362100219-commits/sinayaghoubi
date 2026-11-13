@@ -1,0 +1,29 @@
+---
+import { X } from '@lucide/astro';
+
+interface Props {
+  src: string;
+  alt: string;
+}
+
+const { src, alt } = Astro.props;
+---
+
+<dialog class="image-lightbox" aria-label="نمایش بزرگ تصویر" data-image-lightbox>
+  <button class="image-lightbox-close" type="button" aria-label="بستن تصویر" data-lightbox-close>
+    <X size={22} aria-hidden="true" />
+  </button>
+  <img src={src} alt={alt} width="1600" height="1000" decoding="async" />
+</dialog>
+
+<script>
+  const lightbox = document.querySelector<HTMLDialogElement>('[data-image-lightbox]');
+  const openButton = document.querySelector<HTMLButtonElement>('[data-lightbox-open]');
+  const closeButton = lightbox?.querySelector<HTMLButtonElement>('[data-lightbox-close]');
+
+  openButton?.addEventListener('click', () => lightbox?.showModal());
+  closeButton?.addEventListener('click', () => lightbox?.close());
+  lightbox?.addEventListener('click', (event) => {
+    if (event.target === lightbox) lightbox.close();
+  });
+</script>

@@ -18,7 +18,9 @@ entries.sort((a, b) => (b.data.publishedAt ?? '').localeCompare(a.data.published
   <section class="section-page" aria-labelledby="archive-title">
     <header class="page-heading">
       <span class="eyebrow">02 / PHILOSOPHY</span>
-      <h1 id="archive-title">فلسفه</h1>
+      <h1 id="archive-title" data-word-reveal>
+        فلسفه
+      </h1>
       <p>جست‌وجو در اندیشه‌های فلسفی و پرسش‌های بنیادین انسان و جهان.</p>
     </header>
     <MaterialArchive entries={entries} />

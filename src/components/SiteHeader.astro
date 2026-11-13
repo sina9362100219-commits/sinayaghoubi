@@ -3,12 +3,21 @@ import { Menu, Moon, Search, Sun } from '@lucide/astro';
 import { navigation, siteConfig } from '../config';
 import SearchPanel from './SearchPanel.astro';
 
+interface Props {
+  overHero?: boolean;
+}
+
+const { overHero = false } = Astro.props;
 const currentPath = Astro.url.pathname;
 const isCurrent = (href: string) =>
   href === '/' ? currentPath === '/' : currentPath === href || currentPath.startsWith(href);
 ---
 
-<header id="top" class="site-header">
+<header
+  id="top"
+  class:list={['site-header', { 'site-header--over-hero': overHero }]}
+  data-site-header
+>
   <div class="header-bar">
     <a class="brand" href="/">
       <span class="brand-mark">
@@ -81,4 +90,11 @@ const isCurrent = (href: string) =>
       mobileMenu.open = false;
     });
   });
+
+  const siteHeader = document.querySelector<HTMLElement>('[data-site-header]');
+  const setHeaderState = () => {
+    siteHeader?.classList.toggle('is-scrolled', window.scrollY > 72);
+  };
+  window.addEventListener('scroll', setHeaderState, { passive: true });
+  setHeaderState();
 </script>
