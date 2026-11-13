@@ -1,0 +1,57 @@
+---
+import { getCollection } from 'astro:content';
+import { siteConfig } from '../config';
+
+const entries = await getCollection('content', ({ data }) => !data.draft);
+const counts = {
+  psychoanalysis: entries.filter((entry) => entry.data.section === 'psychoanalysis').length,
+  philosophy: entries.filter((entry) => entry.data.section === 'philosophy').length,
+};
+const tags = [...new Set(entries.flatMap((entry) => entry.data.tags))].sort((a, b) =>
+  a.localeCompare(b, 'fa'),
+);
+const formatCount = (count: number) => new Intl.NumberFormat('fa-IR').format(count);
+---
+
+<aside class="site-sidebar" aria-label="اطلاعات و بخش‌های سایت">
+  <section class="sidebar-widget profile-card" aria-label="معرفی">
+    <a class="profile-avatar" href="/" aria-label="رفتن به صفحهٔ اصلی">
+      <img src="/favicon.svg" alt="" width="84" height="84" />
+    </a>
+    <h2 class="profile-name">{siteConfig.name}</h2>
+    <p class="profile-bio">{siteConfig.introduction}</p>
+  </section>
+
+  <section class="sidebar-widget" aria-labelledby="sections-heading">
+    <h2 class="widget-heading" id="sections-heading">
+      قلمروهای مطالعه
+    </h2>
+    <nav class="category-list" aria-label="بخش‌های اصلی">
+      <a class="category-link" href="/psychoanalysis/">
+        <span>روانکاوی</span>
+        <span class="category-count" aria-label={`${counts.psychoanalysis} مطلب`}>
+          {formatCount(counts.psychoanalysis)}
+        </span>
+      </a>
+      <a class="category-link" href="/philosophy/">
+        <span>فلسفه</span>
+        <span class="category-count" aria-label={`${counts.philosophy} مطلب`}>
+          {formatCount(counts.philosophy)}
+        </span>
+      </a>
+    </nav>
+  </section>
+
+  {tags.length > 0 && (
+    <section class="sidebar-widget" aria-labelledby="tags-heading">
+      <h2 class="widget-heading" id="tags-heading">
+        کلیدواژه‌ها
+      </h2>
+      <div class="tag-list">
+        {tags.map((tag) => (
+          <span class="tag-item">{tag}</span>
+        ))}
+      </div>
+    </section>
+  )}
+</aside>

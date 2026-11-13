@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 
 const routes = [
   '/',
+  '/archive/',
   '/psychoanalysis/',
   '/philosophy/',
   '/materials/anxiety-and-psychic-defenses/',
@@ -28,6 +29,45 @@ test('article pages expose one visible page heading', async ({ page }) => {
   await page.goto('/materials/anxiety-and-psychic-defenses/');
 
   await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
+});
+
+test('article table of contents links to rendered headings', async ({ page }) => {
+  await page.goto('/materials/anxiety-and-psychic-defenses/');
+
+  const links = page.locator('[data-toc] a');
+  await expect(links).toHaveCount(3);
+  const targetsExist = await links.evaluateAll((items) =>
+    items.every((item) => {
+      const id = decodeURIComponent((item as HTMLAnchorElement).hash.slice(1));
+      return document.getElementById(id) !== null;
+    }),
+  );
+  expect(targetsExist).toBe(true);
+});
+
+test('search dialog opens, accepts a query, and closes with Escape', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'جست‌وجو' }).click();
+
+  const dialog = page.getByRole('dialog', { name: 'جست‌وجو در نوشته‌ها' });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('searchbox', { name: 'عبارت جست‌وجو' }).fill('اضطراب');
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
+});
+
+test('theme control toggles and persists the selected theme', async ({ page }) => {
+  await page.goto('/');
+  const toggle = page.getByRole('button', { name: 'تغییر به حالت تیره' });
+  await toggle.click();
+  await expect(page.locator('html')).toHaveClass(/dark/);
+  await expect(page.getByRole('button', { name: 'تغییر به حالت روشن' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+
+  await page.reload();
+  await expect(page.locator('html')).toHaveClass(/dark/);
 });
 
 test('site links resolve to published pages', async ({ page, request }) => {

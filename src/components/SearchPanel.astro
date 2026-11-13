@@ -1,0 +1,123 @@
+---
+import { X } from '@lucide/astro';
+---
+
+<dialog class="search-dialog" aria-labelledby="search-title" data-search-dialog>
+  <div class="search-dialog-inner">
+    <header class="search-dialog-header">
+      <h2 id="search-title">جست‌وجو در نوشته‌ها</h2>
+      <button class="icon-button" type="button" aria-label="بستن پنجرهٔ جست‌وجو" data-search-close>
+        <X size={19} aria-hidden="true" />
+      </button>
+    </header>
+    <form class="search-form" role="search" data-search-form>
+      <input
+        type="search"
+        name="q"
+        aria-label="عبارت جست‌وجو"
+        placeholder="عنوان یا واژه‌ای را بنویسید"
+        autocomplete="off"
+        data-search-input
+      />
+    </form>
+    <p class="search-status" aria-live="polite" data-search-status>
+      عنوان و متن مقاله‌ها جست‌وجو می‌شوند.
+    </p>
+    <ul class="search-results" data-search-results></ul>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-search-dialog]');
+  const openButton = document.querySelector<HTMLButtonElement>('[data-search-open]');
+  const closeButton = document.querySelector<HTMLButtonElement>('[data-search-close]');
+  const form = document.querySelector<HTMLFormElement>('[data-search-form]');
+  const input = document.querySelector<HTMLInputElement>('[data-search-input]');
+  const status = document.querySelector<HTMLElement>('[data-search-status]');
+  const resultList = document.querySelector<HTMLUListElement>('[data-search-results]');
+
+  openButton?.addEventListener('click', () => {
+    dialog?.showModal();
+    input?.focus();
+  });
+
+  closeButton?.addEventListener('click', () => dialog?.close());
+  dialog?.addEventListener('cancel', (event) => {
+    event.preventDefault();
+    dialog.close();
+  });
+  document.addEventListener(
+    'keydown',
+    (event) => {
+      if (event.key === 'Escape' && dialog?.open) {
+        event.preventDefault();
+        dialog.close();
+      }
+    },
+    true,
+  );
+  dialog?.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+  });
+
+  let searchSequence = 0;
+  let debounceTimer: ReturnType<typeof setTimeout>;
+
+  input?.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      void search(input.value.trim());
+    }, 180);
+  });
+
+  async function search(query: string) {
+    const sequence = ++searchSequence;
+    if (!status || !resultList) return;
+
+    resultList.replaceChildren();
+    if (!query) {
+      status.textContent = 'عنوان و متن مقاله‌ها جست‌وجو می‌شوند.';
+      return;
+    }
+
+    status.textContent = 'در حال جست‌وجو…';
+
+    try {
+      const pagefindUrl = new URL('/pagefind/pagefind.js', window.location.origin).href;
+      const pagefind = await import(/* @vite-ignore */ pagefindUrl);
+      const response = await pagefind.search(query);
+      const results = await Promise.all(
+        response.results
+          .slice(0, 8)
+          .map((result: { data: () => Promise<{ url: string; meta?: { title?: string } }> }) =>
+            result.data(),
+          ),
+      );
+
+      if (sequence !== searchSequence) return;
+      if (results.length === 0) {
+        status.textContent = 'مطلبی با این عبارت پیدا نشد.';
+        return;
+      }
+
+      for (const result of results) {
+        const item = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = result.url;
+        link.textContent = result.meta?.title || result.url;
+        item.append(link);
+        resultList.append(item);
+      }
+      status.textContent = `${results.length} نتیجه پیدا شد.`;
+    } catch (error) {
+      if (sequence !== searchSequence) return;
+      status.textContent =
+        'جست‌وجوی کامل پس از ساخت نسخهٔ استاتیک در دسترس است. اگر این پیام در سایت منتشرشده دیده می‌شود، فایل شاخص جست‌وجو بارگذاری نشد.';
+      console.error('Pagefind search could not be loaded.', error);
+    }
+  }
+</script>

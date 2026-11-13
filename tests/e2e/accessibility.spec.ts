@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 
 const routes = [
   '/',
+  '/archive/',
   '/psychoanalysis/',
   '/philosophy/',
   '/materials/anxiety-and-psychic-defenses/',
@@ -22,3 +23,12 @@ for (const route of routes) {
     expect(results.violations, `Accessibility violations on ${route}`).toEqual([]);
   });
 }
+
+test('dark theme accessibility audit', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'تغییر به حالت تیره' }).click();
+
+  const results = await new AxeBuilder({ page }).analyze();
+
+  expect(results.violations, 'Accessibility violations in dark theme').toEqual([]);
+});

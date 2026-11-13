@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 const routes = [
   '/',
+  '/archive/',
   '/psychoanalysis/',
   '/philosophy/',
   '/materials/anxiety-and-psychic-defenses/',
@@ -29,6 +30,7 @@ test('mobile navigation opens and exposes the site destinations', async ({ page 
 
   const navigation = page.getByRole('navigation', { name: 'منوی موبایل' });
   await expect(navigation.getByRole('link', { name: 'خانه' })).toBeVisible();
+  await expect(navigation.getByRole('link', { name: 'آرشیو' })).toBeVisible();
   await expect(navigation.getByRole('link', { name: 'روانکاوی' })).toBeVisible();
   await expect(navigation.getByRole('link', { name: 'فلسفه' })).toBeVisible();
 });

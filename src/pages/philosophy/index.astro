@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import MaterialArchive from '../../components/MaterialArchive.astro';
-import Layout from '../../layouts/Layout.astro';
+import MainGridLayout from '../../components/MainGridLayout.astro';
 
 const entries = await getCollection(
   'content',
@@ -11,20 +11,16 @@ const entries = await getCollection(
 entries.sort((a, b) => (b.data.publishedAt ?? '').localeCompare(a.data.publishedAt ?? ''));
 ---
 
-<Layout
+<MainGridLayout
   title="فلسفه | روانکاوی با سینا"
   description="جست‌وجو در اندیشه‌های فلسفی و پرسش‌های بنیادین انسان و جهان."
 >
-  <section class="section archive-page" aria-labelledby="archive-title">
-    <div class="container">
-      <header class="archive-heading">
-        <div>
-          <span class="eyebrow">فلسفه / آرشیو</span>
-          <h1 id="archive-title">فلسفه</h1>
-        </div>
-        <p>جست‌وجو در اندیشه‌های فلسفی و پرسش‌های بنیادین انسان و جهان.</p>
-      </header>
-      <MaterialArchive entries={entries} />
-    </div>
+  <section class="content-panel" aria-labelledby="archive-title">
+    <header class="page-heading">
+      <span class="eyebrow">02 / PHILOSOPHY</span>
+      <h1 id="archive-title">فلسفه</h1>
+      <p>جست‌وجو در اندیشه‌های فلسفی و پرسش‌های بنیادین انسان و جهان.</p>
+    </header>
+    <MaterialArchive entries={entries} />
   </section>
-</Layout>
+</MainGridLayout>

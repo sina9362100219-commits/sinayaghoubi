@@ -1,0 +1,60 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { estimateReadingMinutes } from '../lib/reading-time';
+
+interface Props {
+  entry: CollectionEntry<'content'>;
+}
+
+const { entry } = Astro.props;
+const sectionTitle = entry.data.section === 'psychoanalysis' ? 'روانکاوی' : 'فلسفه';
+const sectionUrl = entry.data.section === 'psychoanalysis' ? '/psychoanalysis/' : '/philosophy/';
+const readingMinutes = estimateReadingMinutes(entry.body ?? '');
+---
+
+<article class="post-card">
+  {entry.data.cover ? (
+    <a
+      class="post-cover"
+      href={`/materials/${entry.id}/`}
+      aria-label={`خواندن: ${entry.data.title}`}
+    >
+      <img
+        src={entry.data.cover}
+        alt=""
+        width="1200"
+        height="650"
+        loading="lazy"
+        decoding="async"
+      />
+    </a>
+  ) : (
+    <span class="post-cover" aria-hidden="true"></span>
+  )}
+  <div class="post-copy">
+    <div class="post-meta">
+      <a class="post-section" data-section={entry.data.section} href={sectionUrl}>
+        {sectionTitle}
+      </a>
+      {entry.data.publishedAt && (
+        <time datetime={entry.data.publishedAt}>{entry.data.publishedAt}</time>
+      )}
+      <span>{readingMinutes} دقیقه مطالعه</span>
+    </div>
+    <h2 class="post-title">
+      <a href={`/materials/${entry.id}/`}>{entry.data.title}</a>
+    </h2>
+    <p class="post-description">{entry.data.description}</p>
+    <div class="post-bottom">
+      <div class="post-tags" aria-label="کلیدواژه‌ها">
+        {entry.data.tags.slice(0, 3).map((tag) => (
+          <span>{tag}</span>
+        ))}
+      </div>
+      <a class="read-link" href={`/materials/${entry.id}/`}>
+        خواندن
+        <span aria-hidden="true">←</span>
+      </a>
+    </div>
+  </div>
+</article>

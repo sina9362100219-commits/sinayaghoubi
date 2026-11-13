@@ -1,0 +1,51 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+const sections = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+---
+
+{sections.length > 0 && (
+  <nav class="content-panel toc-panel" aria-labelledby="toc-title" data-toc>
+    <h2 id="toc-title">در این مطلب</h2>
+    <ol>
+      {sections.map((heading) => (
+        <li data-depth={heading.depth}>
+          <a href={`#${heading.slug}`}>{heading.text}</a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}
+
+<script>
+  const toc = document.querySelector<HTMLElement>('[data-toc]');
+  const links = Array.from(toc?.querySelectorAll<HTMLAnchorElement>('a[href^="#"]') ?? []);
+  const headingElements = links
+    .map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))))
+    .filter((heading): heading is HTMLElement => heading instanceof HTMLElement);
+
+  if (headingElements.length > 0 && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const currentHash = `#${entry.target.id}`;
+          for (const link of links) {
+            if (link.hash === currentHash) {
+              link.setAttribute('aria-current', 'location');
+            } else {
+              link.removeAttribute('aria-current');
+            }
+          }
+        }
+      },
+      { rootMargin: '-15% 0px -70% 0px' },
+    );
+    headingElements.forEach((heading) => observer.observe(heading));
+  }
+</script>

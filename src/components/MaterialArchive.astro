@@ -1,157 +1,20 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import PostCard from './PostCard.astro';
 
 interface Props {
   entries: CollectionEntry<'content'>[];
 }
 
 const { entries } = Astro.props;
-const formatIndex = (index: number) =>
-  new Intl.NumberFormat('fa-IR', { minimumIntegerDigits: 2, useGrouping: false }).format(index + 1);
 ---
 
 {entries.length > 0 ? (
-  <ol class="archive-list" aria-label="فهرست مطالب">
-    {entries.map((entry, index) => (
-      <li>
-        <article>
-          <a class="archive-entry" href={`/materials/${entry.id}/`}>
-            {entry.data.cover && (
-              <span class="archive-cover">
-                <img
-                  src={entry.data.cover}
-                  alt=""
-                  width="1200"
-                  height="650"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </span>
-            )}
-            <span class="archive-copy">
-              <span class="archive-meta">
-                <span>{formatIndex(index)}</span>
-                {entry.data.publishedAt && <span>{entry.data.publishedAt}</span>}
-              </span>
-              <h2>{entry.data.title}</h2>
-              <span class="archive-description">{entry.data.description}</span>
-              <span class="archive-read">
-                خواندن مطلب <span aria-hidden="true">←</span>
-              </span>
-            </span>
-          </a>
-        </article>
-      </li>
+  <div class="post-list" aria-label="فهرست مطالب">
+    {entries.map((entry) => (
+      <PostCard entry={entry} />
     ))}
-  </ol>
+  </div>
 ) : (
   <p class="archive-empty">مطالب این بخش به‌زودی منتشر خواهند شد.</p>
 )}
-
-<style>
-  .archive-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .archive-list li {
-    border-block-end: 1px solid var(--sina-border);
-  }
-
-  .archive-entry {
-    display: grid;
-    grid-template-columns: minmax(190px, 0.36fr) minmax(0, 1fr);
-    align-items: center;
-    gap: clamp(20px, 4vw, 48px);
-    padding-block: var(--space-6);
-  }
-
-  .archive-cover {
-    display: block;
-    overflow: hidden;
-    background: var(--sina-paper);
-    aspect-ratio: 12 / 6.5;
-  }
-
-  .archive-cover img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 220ms ease;
-  }
-
-  .archive-entry:hover .archive-cover img {
-    transform: scale(1.025);
-  }
-
-  .archive-copy {
-    display: grid;
-    justify-items: start;
-    min-width: 0;
-  }
-
-  .archive-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    color: var(--sina-muted);
-    font-size: var(--text-xs);
-  }
-
-  .archive-meta > :first-child {
-    color: var(--sina-ruby-deep);
-    font-weight: 700;
-  }
-
-  .archive-copy h2 {
-    margin: var(--space-2) 0;
-    font-size: var(--text-lg);
-    line-height: 1.65;
-    transition: color 160ms ease;
-  }
-
-  .archive-entry:hover h2 {
-    color: var(--sina-teal-deep);
-  }
-
-  .archive-description {
-    color: var(--sina-muted);
-    font-size: var(--text-sm);
-    line-height: 2;
-  }
-
-  .archive-read {
-    display: inline-flex;
-    min-block-size: 40px;
-    align-items: center;
-    gap: var(--space-2);
-    margin-block-start: var(--space-2);
-    color: var(--sina-teal-deep);
-    font-size: var(--text-sm);
-    font-weight: 700;
-  }
-
-  .archive-read > span {
-    color: var(--sina-ruby);
-  }
-
-  .archive-empty {
-    margin: 0;
-    padding-block: var(--space-12);
-    color: var(--sina-muted);
-    text-align: center;
-  }
-
-  @media (max-width: 560px) {
-    .archive-entry {
-      grid-template-columns: minmax(96px, 0.34fr) minmax(0, 1fr);
-      gap: var(--space-4);
-    }
-
-    .archive-description {
-      font-size: var(--text-xs);
-    }
-  }
-</style>

@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import MainGridLayout from '../../components/MainGridLayout.astro';
+
+const entries = await getCollection('content', ({ data }) => !data.draft);
+entries.sort(
+  (a, b) =>
+    (b.data.publishedAt ?? '').localeCompare(a.data.publishedAt ?? '') || b.id.localeCompare(a.id),
+);
+const formatIndex = (index: number) =>
+  new Intl.NumberFormat('fa-IR', { minimumIntegerDigits: 2, useGrouping: false }).format(index + 1);
+---
+
+<MainGridLayout
+  title="آرشیو نوشته‌ها | روانکاوی با سینا"
+  description="آرشیو نوشته‌های روانکاوی و فلسفه."
+>
+  <section class="content-panel" aria-labelledby="archive-title">
+    <header class="page-heading">
+      <span class="eyebrow">ARCHIVE / نوشته‌ها</span>
+      <h1 id="archive-title">آرشیو</h1>
+      <p>همهٔ نوشته‌ها در دو قلمرو روانکاوی و فلسفه.</p>
+    </header>
+
+    {entries.length > 0 ? (
+      <ol class="archive-timeline" aria-label="فهرست نوشته‌ها">
+        {entries.map((entry, index) => (
+          <li>
+            <a href={`/materials/${entry.id}/`}>
+              <span class="archive-meta">
+                {entry.data.publishedAt ?? 'بدون تاریخ'} ·
+                {entry.data.section === 'psychoanalysis' ? 'روانکاوی' : 'فلسفه'}
+                {' · '}
+                {formatIndex(index)}
+              </span>
+              <h2>{entry.data.title}</h2>
+              <p>{entry.data.description}</p>
+            </a>
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <p class="archive-empty">نوشته‌ای برای نمایش وجود ندارد.</p>
+    )}
+  </section>
+</MainGridLayout>
