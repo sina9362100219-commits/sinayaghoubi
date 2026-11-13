@@ -52,7 +52,7 @@ const readingMinutes = estimateReadingMinutes(entry.body ?? '');
       </header>
 
       {entry.data.cover && (
-        <figure class="article-cover">
+        <figure class="article-cover image-reveal" data-article-reveal>
           <img
             src={entry.data.cover}
             alt={entry.data.coverAlt ?? ''}
@@ -88,6 +88,25 @@ const readingMinutes = estimateReadingMinutes(entry.body ?? '');
 <script>
   const progressBar = document.querySelector<HTMLElement>('[data-reading-progress]');
   const articleBody = document.querySelector<HTMLElement>('[data-pagefind-body]');
+  const articleCover = document.querySelector<HTMLElement>('[data-article-reveal]');
+
+  if (articleCover) {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion || !('IntersectionObserver' in window)) {
+      articleCover.classList.add('is-visible');
+    } else {
+      articleCover.classList.add('is-pending');
+      const coverObserver = new IntersectionObserver(
+        (entries, observer) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          articleCover.classList.add('is-visible');
+          observer.disconnect();
+        },
+        { rootMargin: '0px 0px -8% 0px' },
+      );
+      coverObserver.observe(articleCover);
+    }
+  }
 
   function updateReadingProgress() {
     if (!progressBar || !articleBody) return;

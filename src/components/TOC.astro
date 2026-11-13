@@ -10,7 +10,7 @@ const sections = headings.filter((heading) => heading.depth === 2 || heading.dep
 ---
 
 {sections.length > 0 && (
-  <nav class="content-panel toc-panel" aria-labelledby="toc-title" data-toc>
+  <nav class="toc-panel" aria-labelledby="toc-title" data-toc>
     <h2 id="toc-title">در این مطلب</h2>
     <ol>
       {sections.map((heading) => (

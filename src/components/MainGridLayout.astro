@@ -1,8 +1,6 @@
 ---
-import { siteConfig } from '../config';
 import SiteFooter from './SiteFooter.astro';
 import SiteHeader from './SiteHeader.astro';
-import Sidebar from './Sidebar.astro';
 import Layout from '../layouts/Layout.astro';
 
 interface Props {
@@ -36,27 +34,9 @@ const {
 >
   <div class="site-frame">
     <SiteHeader />
-    <div class="site-banner" aria-hidden="true">
-      <img
-        src={siteConfig.banner}
-        alt=""
-        width="1200"
-        height="900"
-        loading={isHome ? 'eager' : 'lazy'}
-        fetchpriority={isHome ? 'high' : 'auto'}
-        decoding="async"
-      />
-      <div class="banner-caption">
-        <strong>{siteConfig.title}</strong>
-        <span lang="en">{siteConfig.subtitle}</span>
-      </div>
-    </div>
-    <div class="main-grid">
-      <Sidebar />
-      <main id="main-content" class="main-column" tabindex="-1">
-        <slot />
-      </main>
-    </div>
+    <main id="main-content" class:list={['main-column', { 'home-main': isHome }]} tabindex="-1">
+      <slot />
+    </main>
     <SiteFooter />
   </div>
 </Layout>

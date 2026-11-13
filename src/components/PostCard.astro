@@ -4,29 +4,32 @@ import { estimateReadingMinutes } from '../lib/reading-time';
 
 interface Props {
   entry: CollectionEntry<'content'>;
+  featured?: boolean;
 }
 
-const { entry } = Astro.props;
+const { entry, featured = false } = Astro.props;
 const sectionTitle = entry.data.section === 'psychoanalysis' ? 'روانکاوی' : 'فلسفه';
 const sectionUrl = entry.data.section === 'psychoanalysis' ? '/psychoanalysis/' : '/philosophy/';
 const readingMinutes = estimateReadingMinutes(entry.body ?? '');
 ---
 
-<article class="post-card">
+<article class:list={['post-card', { 'post-card--featured': featured }]}>
   {entry.data.cover ? (
     <a
       class="post-cover"
       href={`/materials/${entry.id}/`}
       aria-label={`خواندن: ${entry.data.title}`}
     >
-      <img
-        src={entry.data.cover}
-        alt=""
-        width="1200"
-        height="650"
-        loading="lazy"
-        decoding="async"
-      />
+      <span class="image-reveal">
+        <img
+          src={entry.data.cover}
+          alt=""
+          width="1200"
+          height="650"
+          loading="lazy"
+          decoding="async"
+        />
+      </span>
     </a>
   ) : (
     <span class="post-cover" aria-hidden="true"></span>
@@ -58,3 +61,28 @@ const readingMinutes = estimateReadingMinutes(entry.body ?? '');
     </div>
   </div>
 </article>
+
+<script>
+  const revealItems = document.querySelectorAll<HTMLElement>('.image-reveal');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (reduceMotion || !('IntersectionObserver' in window)) {
+    revealItems.forEach((item) => item.classList.add('is-visible'));
+  } else {
+    const observer = new IntersectionObserver(
+      (entries, currentObserver) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add('is-visible');
+          currentObserver.unobserve(entry.target);
+        }
+      },
+      { rootMargin: '0px 0px -8% 0px' },
+    );
+
+    revealItems.forEach((item) => {
+      item.classList.add('is-pending');
+      observer.observe(item);
+    });
+  }
+</script>

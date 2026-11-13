@@ -11,8 +11,8 @@ const { entries } = Astro.props;
 
 {entries.length > 0 ? (
   <div class="post-list" aria-label="فهرست مطالب">
-    {entries.map((entry) => (
-      <PostCard entry={entry} />
+    {entries.map((entry, index) => (
+      <PostCard entry={entry} featured={index === 0} />
     ))}
   </div>
 ) : (

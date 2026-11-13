@@ -5,13 +5,17 @@ const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
+  <a class="footer-brand" href="/">
+    <strong>{siteConfig.title}</strong>
+    <span>{siteConfig.introduction}</span>
+  </a>
   <nav class="footer-links" aria-label="پیوندهای اصلی">
     {navigation.map((item) => (
       <a href={item.href}>{item.label}</a>
     ))}
     <a href="#top">بازگشت به بالا ↑</a>
   </nav>
-  <div>
+  <div class="footer-credit">
     © {year} {siteConfig.name} · بر پایهٔ <a href="https://github.com/saicaca/fuwari">Fuwari</a> و
     Astro
   </div>

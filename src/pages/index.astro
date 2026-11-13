@@ -4,6 +4,7 @@ import { ArrowLeft } from '@lucide/astro';
 import MainGridLayout from '../components/MainGridLayout.astro';
 import PostCard from '../components/PostCard.astro';
 import { siteConfig } from '../config';
+import { estimateReadingMinutes } from '../lib/reading-time';
 
 const materials = await getCollection('content', ({ data }) => !data.draft);
 materials.sort(
@@ -15,34 +16,102 @@ materials.sort(
 <MainGridLayout
   title={`${siteConfig.introduction} | ${siteConfig.title}`}
   description="فضایی برای مطالعه و تأمل در روانکاوی، فلسفه و تجربهٔ انسانی."
-  socialImage={siteConfig.banner}
-  socialImageAlt="چشم‌اندازی انتزاعی از فضای درونی و اندیشه"
+  socialImage={materials[0]?.data.cover ?? siteConfig.banner}
+  socialImageAlt={materials[0]?.data.coverAlt ?? 'چشم‌اندازی انتزاعی از فضای درونی و اندیشه'}
   isHome={true}
 >
   <section class="home-intro" aria-labelledby="home-title">
-    <span class="eyebrow">
-      {siteConfig.title}
-      <span lang="en" dir="ltr">
-        PSYCHOANALYSIS WITH SINA
-      </span>
-    </span>
-    <h1 id="home-title">{siteConfig.introduction}</h1>
-    <p>تأملی در روان، اندیشه و پیچیدگی تجربهٔ انسانی.</p>
-    <nav class="home-links" aria-label="ورود به بخش‌ها">
-      <a href="/psychoanalysis/">
-        روانکاوی
-        <ArrowLeft size={16} aria-hidden="true" />
-      </a>
-      <a href="/philosophy/">
-        فلسفه
-        <ArrowLeft size={16} aria-hidden="true" />
-      </a>
-    </nav>
+    <div class="home-copy">
+      <span class="eyebrow">{siteConfig.title}</span>
+      <h1 id="home-title">{siteConfig.introduction}</h1>
+      <p>تأملی در روان، اندیشه و پیچیدگی تجربهٔ انسانی.</p>
+      <nav class="home-links" aria-label="ورود به بخش‌ها">
+        <a href="/psychoanalysis/">
+          روانکاوی
+          <span aria-hidden="true">
+            <ArrowLeft size={16} />
+          </span>
+        </a>
+        <a href="/philosophy/">
+          فلسفه
+          <span aria-hidden="true">
+            <ArrowLeft size={16} />
+          </span>
+        </a>
+      </nav>
+    </div>
+
+    {materials[0] && (
+      <article class="hero-story">
+        <img
+          src={materials[0].data.cover ?? siteConfig.banner}
+          alt=""
+          width="1200"
+          height="750"
+          fetchpriority="high"
+          decoding="async"
+          data-parallax
+        />
+        <div class="hero-story-copy">
+          <a
+            class="post-section"
+            data-section={materials[0].data.section}
+            href={
+              materials[0].data.section === 'psychoanalysis' ? '/psychoanalysis/' : '/philosophy/'
+            }
+          >
+            {materials[0].data.section === 'psychoanalysis' ? 'روانکاوی' : 'فلسفه'}
+          </a>
+          <h2>
+            <a href={`/materials/${materials[0].id}/`}>{materials[0].data.title}</a>
+          </h2>
+          <p>{materials[0].data.description}</p>
+          <div class="hero-story-meta">
+            {materials[0].data.publishedAt && (
+              <time datetime={materials[0].data.publishedAt}>{materials[0].data.publishedAt}</time>
+            )}
+            <span>{estimateReadingMinutes(materials[0].body ?? '')} دقیقه مطالعه</span>
+            <a class="read-link" href={`/materials/${materials[0].id}/`}>
+              خواندن مطلب <span aria-hidden="true">←</span>
+            </a>
+          </div>
+        </div>
+      </article>
+    )}
   </section>
+
+  <nav class="section-index" aria-label="بخش‌های اصلی">
+    <a href="/psychoanalysis/">
+      <span class="section-number">01 / FIELD</span>
+      <strong>روانکاوی</strong>
+      <small>مطالعهٔ نظریه‌ها، مفاهیم، متون و پرسش‌های روانکاوانه.</small>
+      <ArrowLeft size={20} aria-hidden="true" />
+    </a>
+    <a href="/philosophy/">
+      <span class="section-number">02 / FIELD</span>
+      <strong>فلسفه</strong>
+      <small>جست‌وجو در اندیشه‌های فلسفی و پرسش‌های بنیادین انسان و جهان.</small>
+      <ArrowLeft size={20} aria-hidden="true" />
+    </a>
+  </nav>
+
+  <div class="editorial-marquee" aria-hidden="true">
+    <div class="marquee-track">
+      {Array.from({ length: 4 }).map(() => (
+        <>
+          <span>روانکاوی</span>
+          <i></i>
+          <span>فلسفه</span>
+          <i></i>
+        </>
+      ))}
+    </div>
+  </div>
 
   <section aria-labelledby="latest-title">
     <header class="feed-heading">
       <div>
+        <span class="eyebrow">SINA YAGHOUB</span>
         <h2 id="latest-title">نوشته‌ها</h2>
         <p>روانکاوی و فلسفه؛ برای خواندن و بازاندیشیدن.</p>
       </div>
@@ -50,14 +119,35 @@ materials.sort(
         آرشیو کامل <span aria-hidden="true">←</span>
       </a>
     </header>
-    {materials.length > 0 ? (
+    {materials.length > 1 ? (
       <div class="post-list">
-        {materials.map((entry) => (
-          <PostCard entry={entry} />
+        {materials.slice(1).map((entry, index) => (
+          <PostCard entry={entry} featured={index === 0} />
         ))}
       </div>
+    ) : materials.length === 1 ? (
+      <p class="archive-empty">نوشتهٔ دیگری برای نمایش وجود ندارد.</p>
     ) : (
       <p class="archive-empty">نوشته‌ای برای نمایش وجود ندارد.</p>
     )}
   </section>
 </MainGridLayout>
+
+<script>
+  const image = document.querySelector<HTMLElement>('[data-parallax]');
+  const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let frame = 0;
+
+  function updateParallax() {
+    if (!image || motionPreference.matches || frame) return;
+    frame = window.requestAnimationFrame(() => {
+      const top = image.getBoundingClientRect().top + window.scrollY;
+      const offset = Math.min(42, Math.max(-18, (window.scrollY - top) * 0.12));
+      image.style.transform = `translateY(${offset}px)`;
+      frame = 0;
+    });
+  }
+
+  window.addEventListener('scroll', updateParallax, { passive: true });
+  window.addEventListener('resize', updateParallax);
+</script>
