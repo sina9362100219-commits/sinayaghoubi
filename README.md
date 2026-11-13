@@ -34,4 +34,6 @@ npm run build
 
 ## انتشار
 
-ابتدا `npm run build` را اجرا کنید. انتشار مستقیم با `npx wrangler deploy` نیازمند احراز هویت مجاز Cloudflare است؛ این فرمان در بررسی‌های خودکار اجرا نمی‌شود. تنظیمات استقرار موجود در `wrangler.jsonc` باید بدون تغییر باقی بماند مگر با تصمیم جداگانه.
+گردش‌کار [Validate site](./.github/workflows/validate.yml) روی Pull Requestها و هر push به `main` بررسی‌ها، تست‌ها و ساخت استاتیک را اجرا می‌کند. انتشار `main` همچنان به Git integration موجود Cloudflare واگذار شده تا هر push دوبار deploy نشود. برای این کار، اتصال مخزن و شاخهٔ `main` باید در تنظیمات Cloudflare مجاز و فعال باشد؛ workflow به Secret یا Token کلادفلر نیاز ندارد.
+
+برای اجرای محلی، `npm run build` خروجی را در `dist/` می‌سازد. انتشار دستی با `npx wrangler deploy` نیازمند احراز هویت مجاز Cloudflare است. تنظیمات موجود در `wrangler.jsonc` را بدون دلیل فنی تغییر ندهید.
