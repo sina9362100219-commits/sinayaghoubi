@@ -2048,3 +2048,53 @@ a:hover > .read-link span,
     transition-duration: 0.01ms !important;
   }
 }
+
+.post-list:not(.related-grid) .post-cover,
+.post-list:not(.related-grid) .post-card--featured .post-cover {
+  min-height: 0;
+  border: 1px solid var(--line);
+  background: var(--card-bg);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  aspect-ratio: 4 / 5;
+}
+
+.post-list:not(.related-grid) .post-cover img {
+  object-fit: contain;
+}
+
+.post-list:not(.related-grid) .post-card:hover .post-cover img {
+  transform: none;
+}
+
+.post-list:not(.related-grid) .image-reveal {
+  clip-path: none;
+}
+
+.post-list:not(.related-grid) .post-card[data-article-section='psychoanalysis'] .post-cover::after,
+.post-list:not(.related-grid) .post-card[data-article-section='philosophy'] .post-cover::after {
+  position: absolute;
+  z-index: 1;
+  inset: 1px;
+  pointer-events: none;
+  content: '';
+}
+
+.post-list:not(.related-grid) .post-card[data-article-section='psychoanalysis'] .post-cover::after {
+  background: linear-gradient(
+    180deg,
+    transparent 30%,
+    rgba(0, 127, 128, 0.2) 62%,
+    rgba(0, 54, 58, 0.92) 100%
+  );
+}
+
+.post-list:not(.related-grid) .post-card[data-article-section='philosophy'] .post-cover::after {
+  background: linear-gradient(
+    180deg,
+    transparent 30%,
+    rgba(125, 23, 63, 0.2) 62%,
+    rgba(58, 11, 30, 0.92) 100%
+  );
+}
