@@ -797,16 +797,73 @@ a:hover > .read-link span,
   gap: clamp(2rem, 3.2vw, 3.6rem) clamp(1rem, 2.2vw, 2rem);
 }
 
+.post-card[data-article-section='psychoanalysis'] {
+  --card-accent-rgb: 0, 159, 154;
+  --card-middle-rgb: 0, 127, 128;
+  --card-deep-rgb: 0, 48, 53;
+}
+
+.post-card[data-article-section='philosophy'] {
+  --card-accent-rgb: 165, 31, 82;
+  --card-middle-rgb: 125, 23, 63;
+  --card-deep-rgb: 50, 11, 28;
+}
+
 .post-card {
   position: relative;
   display: flex;
   min-width: 0;
   flex-direction: column;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(255, 255, 255, 0.19);
+  border-radius: 1rem;
+  background: rgba(var(--card-deep-rgb), 0.98);
+  color: #f8f6f1;
+  box-shadow:
+    0 14px 34px rgba(11, 19, 23, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(6px) saturate(115%);
+  backdrop-filter: blur(6px) saturate(115%);
   transform: perspective(1100px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
   transform-style: preserve-3d;
   transition:
     transform 320ms cubic-bezier(0.2, 0.7, 0.2, 1),
-    filter 320ms ease;
+    filter 320ms ease,
+    border-color 240ms ease;
+}
+
+.post-card::before {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent 32%,
+      rgba(var(--card-accent-rgb), 0.08) 40%,
+      rgba(var(--card-middle-rgb), 0.34) 51%,
+      rgba(var(--card-deep-rgb), 0.96) 64%,
+      rgba(var(--card-deep-rgb), 0.99) 72%,
+      rgb(var(--card-deep-rgb)) 100%
+    ),
+    radial-gradient(ellipse at 12% 58%, rgba(var(--card-accent-rgb), 0.2), transparent 48%),
+    radial-gradient(ellipse at 92% 70%, rgba(var(--card-middle-rgb), 0.18), transparent 46%);
+  content: '';
+  pointer-events: none;
+}
+
+.post-card::after {
+  position: absolute;
+  z-index: 3;
+  inset: 1px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: calc(1rem - 1px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  content: '';
+  pointer-events: none;
 }
 
 .post-card.is-entered {
@@ -822,6 +879,7 @@ a:hover > .read-link span,
 
 .post-card:hover {
   filter: drop-shadow(0 12px 18px rgba(37, 43, 50, 0.12));
+  border-color: rgba(255, 255, 255, 0.32);
 }
 
 .post-card.is-tilting {
@@ -834,67 +892,43 @@ a:hover > .read-link span,
 
 .post-cover {
   position: relative;
+  z-index: 0;
   display: block;
   min-width: 0;
   overflow: hidden;
-  background: var(--primary-soft);
-  aspect-ratio: 4 / 3;
+  background: transparent;
+  aspect-ratio: 4 / 5;
 }
 
 .post-card--featured .post-cover {
-  min-height: 22rem;
-  aspect-ratio: auto;
+  min-height: 0;
+  aspect-ratio: 4 / 5;
 }
 
 .post-cover img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition: transform 700ms cubic-bezier(0.2, 0.65, 0.3, 1);
+  object-fit: contain;
+  transition: none;
 }
 
 .image-reveal {
   display: block;
   width: 100%;
   height: 100%;
-  transition: clip-path 850ms cubic-bezier(0.22, 0.7, 0.2, 1);
-}
-
-.post-card:hover .post-cover img {
-  transform: scale(1.045);
-}
-
-.image-reveal.reveal-diagonal.is-pending {
-  clip-path: inset(0 100% 0 0);
-}
-
-.image-reveal.reveal-circle.is-pending {
-  clip-path: circle(0% at 50% 50%);
-}
-
-.image-reveal.reveal-curtain.is-pending {
-  clip-path: inset(0 50%);
-}
-
-.image-reveal.is-visible {
-  clip-path: inset(0);
-}
-
-.image-reveal.reveal-circle.is-visible {
-  clip-path: circle(75% at 50% 50%);
-}
-
-.image-reveal.reveal-curtain.is-visible {
-  clip-path: inset(0);
+  clip-path: none;
 }
 
 .post-copy {
+  position: relative;
+  z-index: 2;
   display: flex;
   min-width: 0;
   flex: 1;
   flex-direction: column;
   align-items: flex-start;
+  background: transparent;
   padding-block-start: 1.05rem;
 }
 
@@ -913,6 +947,10 @@ a:hover > .read-link span,
   font-size: 0.71rem;
 }
 
+.post-card .post-meta {
+  color: rgba(248, 246, 241, 0.68);
+}
+
 .post-section {
   display: inline-flex;
   min-height: 1.55rem;
@@ -926,11 +964,24 @@ a:hover > .read-link span,
   color: var(--ruby);
 }
 
+.post-card[data-article-section='psychoanalysis'] .post-section {
+  color: rgba(196, 246, 239, 0.94);
+}
+
+.post-card[data-article-section='philosophy'] .post-section {
+  color: rgba(255, 207, 222, 0.94);
+}
+
 .post-title {
   margin: 0.5rem 0 0.3rem;
   font-size: clamp(1.1rem, 1.9vw, 1.55rem);
   font-weight: 800;
   line-height: 1.65;
+}
+
+.post-card .post-title,
+.post-card .post-title a {
+  color: #fff;
 }
 
 .post-title a {
@@ -961,6 +1012,17 @@ a:hover > .read-link span,
   text-decoration-color: var(--ruby);
 }
 
+.post-card .post-title a:hover {
+  color: #fff;
+  text-decoration-color: rgba(255, 255, 255, 0.72);
+}
+
+.post-card .post-title a:focus-visible {
+  border-radius: 0.2rem;
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 3px;
+}
+
 .post-description {
   display: -webkit-box;
   overflow: hidden;
@@ -970,6 +1032,18 @@ a:hover > .read-link span,
   line-height: 2;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+}
+
+.post-card .post-description {
+  color: rgba(248, 246, 241, 0.8);
+}
+
+.post-card .read-link {
+  color: rgba(248, 246, 241, 0.92);
+}
+
+.post-card .read-link span {
+  color: rgba(248, 246, 241, 0.78);
 }
 
 .post-card--featured .post-description {
@@ -1003,10 +1077,18 @@ a:hover > .read-link span,
   font-size: 0.68rem;
 }
 
+.post-card .post-tags span {
+  color: rgba(248, 246, 241, 0.72);
+}
+
 .post-tags span + span::before {
   margin-inline: 0.3rem;
   color: var(--line-strong);
   content: '·';
+}
+
+.post-card .post-tags span + span::before {
+  color: rgba(248, 246, 241, 0.36);
 }
 
 .archive-empty {
@@ -1037,7 +1119,7 @@ a:hover > .read-link span,
 
 .section-page .post-card--featured .post-cover {
   min-height: 0;
-  aspect-ratio: 1.35;
+  aspect-ratio: 4 / 5;
 }
 
 .page-heading {
@@ -1792,7 +1874,7 @@ a:hover > .read-link span,
 
   .post-card--featured .post-cover {
     min-height: 0;
-    aspect-ratio: 1.25;
+    aspect-ratio: 4 / 5;
   }
 
   .post-card--featured .post-copy {
@@ -1913,7 +1995,7 @@ a:hover > .read-link span,
   .post-cover,
   .post-card--featured .post-cover,
   .section-page .post-card--featured .post-cover {
-    aspect-ratio: 1.35;
+    aspect-ratio: 4 / 5;
   }
 
   .post-card--featured,
@@ -2047,54 +2129,4 @@ a:hover > .read-link span,
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-.post-list:not(.related-grid) .post-cover,
-.post-list:not(.related-grid) .post-card--featured .post-cover {
-  min-height: 0;
-  border: 1px solid var(--line);
-  background: var(--card-bg);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.42),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-  aspect-ratio: 4 / 5;
-}
-
-.post-list:not(.related-grid) .post-cover img {
-  object-fit: contain;
-}
-
-.post-list:not(.related-grid) .post-card:hover .post-cover img {
-  transform: none;
-}
-
-.post-list:not(.related-grid) .image-reveal {
-  clip-path: none;
-}
-
-.post-list:not(.related-grid) .post-card[data-article-section='psychoanalysis'] .post-cover::after,
-.post-list:not(.related-grid) .post-card[data-article-section='philosophy'] .post-cover::after {
-  position: absolute;
-  z-index: 1;
-  inset: 1px;
-  pointer-events: none;
-  content: '';
-}
-
-.post-list:not(.related-grid) .post-card[data-article-section='psychoanalysis'] .post-cover::after {
-  background: linear-gradient(
-    180deg,
-    transparent 30%,
-    rgba(0, 127, 128, 0.2) 62%,
-    rgba(0, 54, 58, 0.92) 100%
-  );
-}
-
-.post-list:not(.related-grid) .post-card[data-article-section='philosophy'] .post-cover::after {
-  background: linear-gradient(
-    180deg,
-    transparent 30%,
-    rgba(125, 23, 63, 0.2) 62%,
-    rgba(58, 11, 30, 0.92) 100%
-  );
 }
