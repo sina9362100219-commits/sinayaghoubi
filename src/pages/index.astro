@@ -27,14 +27,22 @@ const revealTypes = ['diagonal', 'circle', 'curtain'] as const;
   {featured ? (
     <section class="home-hero" aria-labelledby="home-title" data-parallax-section>
       <img
-        class="home-hero-image"
-        src={featured.data.cover ?? siteConfig.banner}
+        class="home-hero-backdrop"
+        src="/images/abyss.jpg"
         alt=""
-        width="1800"
-        height="1100"
-        fetchpriority="high"
+        width="977"
+        height="1303"
         decoding="async"
+        fetchpriority="high"
         data-parallax
+      />
+      <img
+        class="home-hero-image"
+        src="/images/abyss.jpg"
+        alt=""
+        width="977"
+        height="1303"
+        decoding="async"
       />
       <div class="home-hero-shade"></div>
       <div class="home-hero-content">
