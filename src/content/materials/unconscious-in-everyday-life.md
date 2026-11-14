@@ -2,8 +2,8 @@
 title: "ناخودآگاه در زندگی روزمره"
 description: "چگونه فراموشی‌ها، لغزش‌های زبانی و تکرارهای روزمره می‌توانند راهی برای اندیشیدن به خواسته‌های نادیده باشند؟"
 section: "psychoanalysis"
-cover: "/images/articles/unconscious.svg"
-coverAlt: "راهی مارپیچ که از میان لایه‌های سایه‌وار به دری روشن می‌رسد"
+cover: "/images/Surreal%20Mindscape%20with%20Classical%20Bust%20and%20Tree.png"
+coverAlt: "چهره‌ای کلاسیک در کنار درختی تنها، با پیکره‌ای در آستانه‌ای روشن و پرندگانی در آسمان"
 tags:
   - "ناخودآگاه"
   - "فروید"
