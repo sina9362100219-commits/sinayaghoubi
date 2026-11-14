@@ -1,88 +1,56 @@
 ---
 import { getCollection } from 'astro:content';
-import { ArrowDown, ArrowLeft } from '@lucide/astro';
+import { ArrowDown } from '@lucide/astro';
 import CategoryFilter from '../components/CategoryFilter.astro';
 import FeaturedCarousel from '../components/FeaturedCarousel.astro';
 import MainGridLayout from '../components/MainGridLayout.astro';
 import PostCard from '../components/PostCard.astro';
 import { siteConfig } from '../config';
-import { estimateReadingMinutes } from '../lib/reading-time';
 
 const materials = await getCollection('content', ({ data }) => !data.draft);
 materials.sort(
   (a, b) =>
     (b.data.publishedAt ?? '').localeCompare(a.data.publishedAt ?? '') || b.id.localeCompare(a.id),
 );
-const featured = materials[0];
 const revealTypes = ['diagonal', 'circle', 'curtain'] as const;
 ---
 
 <MainGridLayout
   title={`${siteConfig.introduction} | ${siteConfig.title}`}
   description="فضایی برای مطالعه و تأمل در روانکاوی، فلسفه و تجربهٔ انسانی."
-  socialImage={featured?.data.cover ?? siteConfig.banner}
-  socialImageAlt={featured?.data.coverAlt ?? 'چشم‌اندازی انتزاعی از فضای درونی و اندیشه'}
+  socialImage="/images/abyss.jpg"
+  socialImageAlt="تصویری از زنی در کنار چراغی گرم‌رنگ"
   isHome={true}
 >
-  {featured ? (
-    <section class="home-hero" aria-labelledby="home-title" data-parallax-section>
-      <img
-        class="home-hero-backdrop"
-        src="/images/abyss.jpg"
-        alt=""
-        width="977"
-        height="1303"
-        decoding="async"
-        fetchpriority="high"
-        data-parallax
-      />
-      <img
-        class="home-hero-image"
-        src="/images/abyss.jpg"
-        alt=""
-        width="977"
-        height="1303"
-        decoding="async"
-      />
-      <div class="home-hero-shade"></div>
-      <div class="home-hero-content">
-        <span class="home-hero-brand">{siteConfig.title}</span>
-        <a
-          class="home-hero-section"
-          data-section={featured.data.section}
-          href={featured.data.section === 'psychoanalysis' ? '/psychoanalysis/' : '/philosophy/'}
-        >
-          {featured.data.section === 'psychoanalysis' ? 'روانکاوی' : 'فلسفه'}
-        </a>
-        <h1 id="home-title" data-word-reveal>
-          {featured.data.title}
+  <section class="home-hero" aria-labelledby="home-title" data-parallax-section>
+    <div class="home-hero-backdrop" aria-hidden="true" data-parallax></div>
+    <img
+      class="home-hero-image"
+      src="/images/abyss.jpg"
+      alt=""
+      width="977"
+      height="1303"
+      fetchpriority="high"
+      decoding="async"
+    />
+    <div class="home-hero-shade"></div>
+    <div class="home-hero-content">
+      <span class="home-hero-brand">{siteConfig.title}</span>
+      <blockquote class="home-hero-quote">
+        <h1 id="home-title">
+          «دور بودم، بسیار دورتر از آنچه فکر می‌کردی؛ و دست تکان نمی‌دادم، بلکه داشتم غرق می‌شدم.»
         </h1>
-        <p>{featured.data.description}</p>
-        <div class="home-hero-meta">
-          {featured.data.publishedAt && (
-            <time datetime={featured.data.publishedAt}>{featured.data.publishedAt}</time>
-          )}
-          <span>{estimateReadingMinutes(featured.body ?? '')} دقیقه مطالعه</span>
-          <a class="hero-read-link" href={`/materials/${featured.id}/`}>
-            خواندن مطلب <ArrowLeft size={17} aria-hidden="true" />
-          </a>
-        </div>
-      </div>
-      <a class="hero-scroll" href="#featured-stories-title">
-        <span>ادامهٔ مطالعه</span>
-        <ArrowDown size={16} aria-hidden="true" />
-      </a>
-    </section>
-  ) : (
-    <section class="home-hero home-hero--empty" aria-labelledby="home-title">
-      <div class="home-hero-content">
-        <span class="home-hero-brand">{siteConfig.title}</span>
-        <h1 id="home-title" data-word-reveal>
-          {siteConfig.introduction}
-        </h1>
-      </div>
-    </section>
-  )}
+        <footer class="home-hero-attribution" dir="ltr">
+          — Stevie Smith<br />
+          <cite>“Not Waving but Drowning”</cite>
+        </footer>
+      </blockquote>
+    </div>
+    <a class="hero-scroll" href="#latest-title">
+      <span>ادامهٔ مطالعه</span>
+      <ArrowDown size={16} aria-hidden="true" />
+    </a>
+  </section>
 
   <FeaturedCarousel entries={materials} />
 
