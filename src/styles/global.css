@@ -872,9 +872,11 @@ a:hover > .read-link span,
 
 .post-card--featured {
   grid-column: span 2;
-  grid-row: span 2;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  grid-template-rows: auto;
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 2rem);
 }
 
 .post-card:hover {
@@ -1109,7 +1111,7 @@ a:hover > .read-link span,
 .section-page .post-card--featured {
   grid-column: span 2;
   grid-row: auto;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
   grid-template-rows: auto;
   align-items: center;
   gap: clamp(1rem, 2.5vw, 2.5rem);
@@ -1866,7 +1868,7 @@ a:hover > .read-link span,
 
   .post-card--featured {
     grid-row: span 1;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
     grid-template-rows: auto;
     align-items: center;
     gap: 1.2rem;
