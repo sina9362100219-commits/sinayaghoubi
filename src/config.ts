@@ -1,6 +1,6 @@
 export const siteConfig = {
-  title: 'روانکاوی با سینا',
-  subtitle: 'Psychoanalysis with Sina',
+  title: 'سینا یعقوبی',
+  subtitle: 'Sina Yaghoubi',
   name: 'سینا یعقوبی',
   introduction: 'به فهم درآوردن تجربه انسانی',
   banner: '/images/hero/inner-landscape.svg',
